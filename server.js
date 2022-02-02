@@ -5,6 +5,7 @@ const io = require('socket.io')(server)
 const { v4: uuidV4 } = require('uuid')
 
 app.set('view engine', 'ejs')
+const port = normalizePort(process.env.PORT || '3000');
 app.use(express.static('public'))
 
 app.get('/', (req, res) => {
@@ -26,4 +27,4 @@ io.on('connection', socket => {
   })
 })
 
-server.listen(3000)
+server.listen(port)
