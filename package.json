@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "devStart":"nodemon server.js"
+    "devStart": "nodemon server.js"
   },
   "repository": {
     "type": "git",
@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/caleb-melchizedek/finalyearproject#readme",
   "dependencies": {
+    "debug": "^4.3.3",
     "ejs": "^3.1.6",
     "express": "^4.17.2",
     "socket.io": "^4.4.1",
