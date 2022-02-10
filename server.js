@@ -1,89 +1,66 @@
-const express = require('express')
-const app = express()
-var debug = require('debug')
+const path = require('path');
+const { createServer } = require('http');
 
-const server = require('http').Server(app)
-const io = require('socket.io')(server)
-const { v4: uuidV4 } = require('uuid')
+const express = require('express');
+const { getIO, initIO } = require('./socket');
 
-const port = normalizePort(process.env.PORT || '3000');
-
-var http = require('http');
-
+const app = express();
 app.set('view engine', 'ejs');
-app.set('port', port);
-app.use(express.static('public'))
-
+app.use('/', express.static(path.join(__dirname, 'public')));
 app.get('/', (req, res) => {
-  res.redirect(`/${uuidV4()}`)
-})
+     res.render("index")
+   })
+const httpServer = createServer(app);
 
-app.get('/:room', (req, res) => {
-  res.render('room', { roomId: req.params.room })
-})
+let port = process.env.PORT || 3500;
 
-io.on('connection', socket => {
-  socket.on('join-room', (roomId, userId) => {
-    socket.join(roomId)
-    socket.broadcast.to(roomId).emit('user-connected', userId)
+initIO(httpServer);
 
-    socket.on('disconnect', () => {
-      socket.broadcast.to(roomId).emit('user-disconnected', userId)
-    })
-  })
-})
+httpServer.listen(port)
+console.log("Server started on ", port);
+
+getIO();
 
 
 
-server.listen(port)
-server.on('error', onError);
-server.on('listening', onListening);
+// const express = require('express')
+// const app = express()
+// var debug = require('debug')
 
-function normalizePort(val) {
-  var port = parseInt(val, 10);
+// const server = require('http').Server(app)
+// const io = require('socket.io')(server)
+// const { v4: uuidV4 } = require('uuid')
 
-  if (isNaN(port)) {
-    // named pipe
-    return val;
-  }
+// const port = normalizePort(process.env.PORT || '3000');
 
-  if (port >= 0) {
-    // port number
-    return port;
-  }
+// var http = require('http');
 
-  return false;
-}
+// app.set('view engine', 'ejs');
+// app.set('port', port);
+// app.use(express.static('public'))
 
-function onError(error) {
-  if (error.syscall !== 'listen') {
-    throw error;
-  }
+// app.get('/', (req, res) => {
+//   res.redirect(`/${uuidV4()}`)
+// })
 
-  var bind = typeof port === 'string'
-    ? 'Pipe ' + port
-    : 'Port ' + port;
+// app.get('/:room', (req, res) => {
+//   res.render('room', { roomId: req.params.room })
+// })
 
-  // handle specific listen errors with friendly messages
-  switch (error.code) {
-    case 'EACCES':
-      console.error(bind + ' requires elevated privileges');
-      process.exit(1);
-      break;
-    case 'EADDRINUSE':
-      console.error(bind + ' is already in use');
-      process.exit(1);
-      break;
-    default:
-      throw error;
-  }
-}
+// io.on('connection', socket => {
+//   socket.on('join-room', (roomId, userId) => {
+//     socket.join(roomId)
+//     socket.broadcast.to(roomId).emit('user-connected', userId)
+
+//     socket.on('disconnect', () => {
+//       socket.broadcast.to(roomId).emit('user-disconnected', userId)
+//     })
+//   })
+// })
 
 
-function onListening() {
-  var addr = server.address();
-  var bind = typeof addr === 'string'
-    ? 'pipe ' + addr
-    : 'port ' + addr.port;
-  debug('Listening on ' + bind);
-}
+
+// server.listen(port)
+// server.on('error', onError);
+// server.on('listening', onListening);
+
