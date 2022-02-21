@@ -13,7 +13,32 @@ let peerConnection;
 let remoteStream;
 let localStream;
 
+const qvgaConstraints = {
+    video: {width: {exact: 320}, height: {exact: 240}}
+  };
+  
+  const vgaConstraints = {
+    video: {width: {exact: 640}, height: {exact: 480}}
+  };
+  
+  const hdConstraints = {
+    video: {width: {exact: 1280}, height: {exact: 720}}
+  };
+  
+  const fullHdConstraints = {
+    video: {width: {exact: 1920}, height: {exact: 1080}}
+  };
+  
+  const televisionFourKConstraints = {
+    video: {width: {exact: 3840}, height: {exact: 2160}}
+  };
+  
+ 
+  
+
 let callInProgress = false;
+
+
 
 //event from html
 function call() {
@@ -133,8 +158,6 @@ function sendCall(data) {
     document.getElementById("calling").style.display = "block";
 }
 
-
-
 /**
  * 
  * @param {Object} data 
@@ -158,6 +181,48 @@ function sendICEcandidate(data) {
     console.log("Send ICE candidate");
     socket.emit("ICEcandidate", data)
 }
+
+function changeResolution(reso){
+    let cnstrn
+    if(reso=="qvga"){
+        console.log(qvgaConstraints);
+        cnstrn=qvgaConstraints
+    }
+    else if(reso=="vga"){
+        console.log(vgaConstraints);
+        cnstrn=vgaConstraints
+
+    }
+    else if(reso=="hd"){
+        console.log(hdConstraints);
+        cnstrn=hdConstraints
+    }
+    else if(reso=="fhd"){
+        console.log(fullHdConstraints);
+        cnstrn=fullHdConstraints
+
+    }
+    else if(reso=="4k"){
+        console.log(televisionFourKConstraints);
+        cnstrn=televisionFourKConstraints
+
+    }
+    navigator.mediaDevices.getUserMedia(cnstrn)
+    .then(stream => {
+        localStream = stream;
+        localVideo.srcObject = stream;
+        // createConnectionAndAddStream()
+        console.log(peerConnection)
+        // stream.getTracks().forEach(track => peerConnection.addTrack(track, stream));
+        peerConnection.removeStream(localStream);
+        // peerConnection.addStream(localStream);
+        
+    })
+    .catch(function (e) {
+        alert('getUserMedia() error: ' + e.name + e.message);
+    });
+}
+
 
 function beReady() {
     return navigator.mediaDevices.getUserMedia({
@@ -240,9 +305,9 @@ function createPeerConnection() {
     try {
         peerConnection = new RTCPeerConnection(pcConfig);
         // peerConnection = new RTCPeerConnection();
-        peerConnection.onicecandidate = handleIceCandidate;
-        peerConnection.onaddstream = handleRemoteStreamAdded;
-        peerConnection.onremovestream = handleRemoteStreamRemoved;
+        peerConnection.addEventListener("icecandidate",(e)=> {handleIceCandidate(e)});
+        peerConnection.addEventListener("addstream",(e)=>{handleRemoteStreamAdded(e)} );
+        peerConnection.addEventListener=("removestream", (e)=>{handleRemoteStreamRemoved(e)});
         console.log('Created RTCPeerConnnection');
         return;
     } catch (e) {
@@ -312,3 +377,57 @@ function callProgress() {
 
     callInProgress = true;
 }
+
+
+// set and monitor bandwidth.
+
+// bandwidthSelector.onchange = () => {
+//     bandwidthSelector.disabled = true;
+//     const bandwidth = bandwidthSelector.options[bandwidthSelector.selectedIndex].value;
+  
+//     // In Chrome, use RTCRtpSender.setParameters to change bandwidth without
+//     // (local) renegotiation. Note that this will be within the envelope of
+//     // the initial maximum bandwidth negotiated via SDP.
+//     if ((adapter.browserDetails.browser === 'chrome' ||
+//          adapter.browserDetails.browser === 'safari' ||
+//          (adapter.browserDetails.browser === 'firefox' &&
+//           adapter.browserDetails.version >= 64)) &&
+//         'RTCRtpSender' in window &&
+//         'setParameters' in window.RTCRtpSender.prototype) {
+//       const sender = pc1.getSenders()[0];
+//       const parameters = sender.getParameters();
+//       if (!parameters.encodings) {
+//         parameters.encodings = [{}];
+//       }
+//       if (bandwidth === 'unlimited') {
+//         delete parameters.encodings[0].maxBitrate;
+//       } else {
+//         parameters.encodings[0].maxBitrate = bandwidth * 1000;
+//       }
+//       sender.setParameters(parameters)
+//           .then(() => {
+//             bandwidthSelector.disabled = false;
+//           })
+//           .catch(e => console.error(e));
+//       return;
+//     }
+//     // Fallback to the SDP munging with local renegotiation way of limiting
+//     // the bandwidth.
+//     pc1.createOffer()
+//         .then(offer => pc1.setLocalDescription(offer))
+//         .then(() => {
+//           const desc = {
+//             type: pc1.remoteDescription.type,
+//             sdp: bandwidth === 'unlimited' ?
+//             removeBandwidthRestriction(pc1.remoteDescription.sdp) :
+//             updateBandwidthRestriction(pc1.remoteDescription.sdp, bandwidth)
+//           };
+//           console.log('Applying bandwidth restriction to setRemoteDescription:\n' +
+//           desc.sdp);
+//           return pc1.setRemoteDescription(desc);
+//         })
+//         .then(() => {
+//           bandwidthSelector.disabled = false;
+//         })
+//         .catch(onSetSessionDescriptionError);
+//   };

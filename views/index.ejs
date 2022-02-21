@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="/assets/logo.png" type="image/png" />
+    <link rel="icon" href="/logo.png" type="image/png" />
     <title>Video Call</title>
     <link rel="stylesheet" href="call.css">
 
@@ -73,7 +73,7 @@
                     </div>
                     <div class="itemWrapper">
                         <img id="profileImageA" style="padding: 30px; width: 140px; height: 140px;"
-                            src="/assets/profile.png" alt="">
+                            src="/profile.png" alt="">
                     </div>
                     <div class="itemWrapper">
                         <h2 style="line-height: 0px;"><span id="callerName"></span></h2>
@@ -92,7 +92,7 @@
                     </div>
                     <div class="itemWrapper">
                         <img id="profileImageCA" style="padding: 30px; width: 140px; height: 140px;"
-                            src="/assets/profile.png" alt="">
+                            src="/profile.png" alt="">
                     </div>
                     <div class="itemWrapper">
                         <h3 style="line-height: 0px;"><span id="otherUserNameCA"></span></h3>
@@ -124,19 +124,25 @@
             <div style="flex-grow: 1;">
             </div>
         </div>
-
-
-
-
-
+        
     </div>
-    <div style="flex-grow: 1;">
+    <div id="resolutions">
+        <div style="display:flex; flex-direction: column;align-items: center;">
+            <p>Select a resolution of choice</p>
+            <div id="resolution_buttons">
+                <button id="qvga"onclick="changeResolution('qvga')">QVGA (320x240)</button>
+                <button id="vga"onclick="changeResolution('vga')">VGA (640x480)</button>
+                <button id="hd"onclick="changeResolution('hd')">HD (1280x720)</button>
+                <button id="full-hd"onclick="changeResolution('fhd')">Full HD (1920x1080)</button>
+                <button id="televisionFourK"onclick="changeResolution('4k')">Television 4K (3840x2160)</button>
+            </div>
+        </div>
     </div>
     <div>
         <div style="display: flex; flex-direction: column;">
-            <a href="https://www.bloggernepal.com/2021/05/setup-stun-and-turn-server-on-ubuntu.html">
+            <!-- <a href="https://www.bloggernepal.com/2021/05/setup-stun-and-turn-server-on-ubuntu.html">
                 Setup STUN and TURN server on Ubuntu
-            </a>
+            </a> -->
         </div>
     </div>
 
