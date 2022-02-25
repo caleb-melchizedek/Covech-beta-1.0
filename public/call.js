@@ -13,26 +13,27 @@ let peerConnection;
 let remoteStream;
 let localStream;
 
-const qvgaConstraints = {
-    video: {width: {exact: 320}, height: {exact: 240}}
-  };
-  
-  const vgaConstraints = {
-    video: {width: {exact: 640}, height: {exact: 480}}
-  };
-  
-  const hdConstraints = {
-    video: {width: {exact: 1280}, height: {exact: 720}}
-  };
-  
-  const fullHdConstraints = {
-    video: {width: {exact: 1920}, height: {exact: 1080}}
-  };
-  
-  const televisionFourKConstraints = {
-    video: {width: {exact: 3840}, height: {exact: 2160}}
-  };
-  
+const codecPreferences = document.querySelector('#codecPreferences');
+const supportsSetCodecPreferences = window.RTCRtpTransceiver &&
+  'setCodecPreferences' in window.RTCRtpTransceiver.prototype;
+
+  const resoCOnstrs={
+    qvgaConstraints: {
+        video: {width: {exact: 320}, height: {exact: 240}}
+    },
+    vgaConstraints: {
+        video: {width: {exact: 640}, height: {exact: 480}}
+    },
+    hdConstraints: {
+        video: {width: {exact: 1280}, height: {exact: 720}}
+    },
+    fullHdConstraints :{
+        video: {width: {exact: 1920}, height: {exact: 1080}}
+    },
+    televisionFourKConstraints: {
+        video: {width: {exact: 3840}, height: {exact: 2160}}
+    }
+}
  
   
 
@@ -76,10 +77,10 @@ let pcConfig = {
 };
 
 // Set up audio and video regardless of what devices are present.
-let sdpConstraints = {
-    offerToReceiveAudio: true,
-    offerToReceiveVideo: true
-};
+// let sdpConstraints = {
+//     offerToReceiveAudio: true,
+//     offerToReceiveVideo: true
+// };
 
 /////////////////////////////////////////////
 
@@ -164,6 +165,43 @@ function sendCall(data) {
  * @param {number} data.caller - the caller name
  * @param {Object} data.rtcMessage - answer rtc sessionDescription object
  */
+
+
+
+
+//functions
+
+function login() {
+    let userName = document.getElementById("userNameInput").value;
+    myName = userName;
+    document.getElementById("userName").style.display = "none";
+    document.getElementById("call").style.display = "block";
+
+    document.getElementById("nameHere").innerHTML = userName;
+    document.getElementById("userInfo").style.display = "block";
+
+    connectSocket();
+
+    document.getElementById("codecs").style.display = "";
+    showCodecsAvailable();
+}
+
+function showCodecsAvailable(){
+    if (supportsSetCodecPreferences) {
+    const {codecs} = RTCRtpSender.getCapabilities('video');
+    codecs.forEach(codec => {
+      if (['video/red', 'video/ulpfec', 'video/rtx'].includes(codec.mimeType)) {
+        return;
+      }
+      const option = document.createElement('option');
+      option.value = (codec.mimeType + ' ' + (codec.sdpFmtpLine || '')).trim();
+      option.innerText = option.value;
+      codecPreferences.appendChild(option);
+    });
+    codecPreferences.disabled = false;
+  }
+}
+
 function answerCall(data) {
     //to answer a call
     socket.emit("answerCall", data);
@@ -209,13 +247,15 @@ function changeResolution(reso){
     }
     navigator.mediaDevices.getUserMedia(cnstrn)
     .then(stream => {
+
         localStream = stream;
         localVideo.srcObject = stream;
-        // createConnectionAndAddStream()
+
+        stream.getTracks().forEach(function (track) {
+        peerConnection.addTrack(track,stream)});
+
         console.log(peerConnection)
-        // stream.getTracks().forEach(track => peerConnection.addTrack(track, stream));
-        peerConnection.removeStream(localStream);
-        // peerConnection.addStream(localStream);
+        
         
     })
     .catch(function (e) {
@@ -227,22 +267,24 @@ function changeResolution(reso){
 function beReady() {
     return navigator.mediaDevices.getUserMedia({
         audio: true,
-        video: true
+        video: true,
     })
         .then(stream => {
             localStream = stream;
             localVideo.srcObject = stream;
 
-            return createConnectionAndAddStream()
+            return createConnectionAndAddStream(stream)
         })
         .catch(function (e) {
             alert('getUserMedia() error: ' + e.name);
         });
 }
 
-function createConnectionAndAddStream() {
+function createConnectionAndAddStream(stream) {
     createPeerConnection();
-    peerConnection.addStream(localStream);
+    stream.getTracks().forEach(function (track) {
+    peerConnection.addTrack(track,stream)});
+
     return true;
 }
 
@@ -306,7 +348,7 @@ function createPeerConnection() {
         peerConnection = new RTCPeerConnection(pcConfig);
         // peerConnection = new RTCPeerConnection();
         peerConnection.addEventListener("icecandidate",(e)=> {handleIceCandidate(e)});
-        peerConnection.addEventListener("addstream",(e)=>{handleRemoteStreamAdded(e)} );
+        peerConnection.addEventListener("track",(e)=>{handleRemoteStreamAdded(e)} );
         peerConnection.addEventListener=("removestream", (e)=>{handleRemoteStreamRemoved(e)});
         console.log('Created RTCPeerConnnection');
         return;
@@ -337,10 +379,22 @@ function handleIceCandidate(event) {
     }
 }
 
-function handleRemoteStreamAdded(event) {
+function handleRemoteStreamAdded(ev) {
     console.log('Remote stream added.');
-    remoteStream = event.stream;
+    let inboundStream =null
+        if (ev.streams && ev.streams[0]) {
+            remoteStream = ev.streams[0];
     remoteVideo.srcObject = remoteStream;
+        } else {
+          if (!inboundStream) {
+            inboundStream = new MediaStream();
+            videoElem.srcObject = inboundStream;
+          }
+          inboundStream.addTrack(ev.track);
+        }
+      ;
+
+    
 }
 
 function handleRemoteStreamRemoved(event) {
@@ -378,6 +432,87 @@ function callProgress() {
     callInProgress = true;
 }
 
+    
+// bandwidth Regulator code
+
+let bitrateGraph;
+let bitrateSeries;
+let headerrateSeries;
+
+let packetGraph;
+let packetSeries;
+
+let lastResult;
+
+let lastRemoteStart = 0;
+
+
+
+// bitrateSeries = new TimelineDataSeries();
+// bitrateGraph = new TimelineGraphView('bitrateGraph', 'bitrateCanvas');
+// bitrateGraph.updateEndDate();
+
+// headerrateSeries = new TimelineDataSeries();
+// headerrateSeries.setColor('green');
+
+// packetSeries = new TimelineDataSeries();
+// packetGraph = new TimelineGraphView('packetGraph', 'packetCanvas');
+// packetGraph.updateEndDate();
+
+
+
+//  Get Stats every second
+window.setInterval(() => {
+    if (!peerConnection) {
+      return;
+    }
+    const sender = peerConnection.getSenders()[0];
+    if (!sender) {
+      return;
+    }
+    sender.getStats().then(res => {
+      res.forEach(report => {
+        let bytes;
+        let headerBytes;
+        let packets;
+        if (report.type === 'outbound-rtp') {
+          if (report.isRemote) {
+            return;
+          }
+          const now = report.timestamp;
+          bytes = report.bytesSent;
+          headerBytes = report.headerBytesSent;
+  
+          packets = report.packetsSent;
+          if (lastResult && lastResult.has(report.id)) {
+            // calculate bitrate
+            const bitrate = 8 * (bytes - lastResult.get(report.id).bytesSent) /
+              (now - lastResult.get(report.id).timestamp);
+            const headerrate = 8 * (headerBytes - lastResult.get(report.id).headerBytesSent) /
+              (now - lastResult.get(report.id).timestamp);
+  
+            // append to chart
+            bitrateSeries.addPoint(now, bitrate);
+            headerrateSeries.addPoint(now, headerrate);
+            bitrateGraph.setDataSeries([bitrateSeries, headerrateSeries]);
+            bitrateGraph.updateEndDate();
+  
+            // calculate number of packets and append to chart
+            packetSeries.addPoint(now, packets -
+              lastResult.get(report.id).packetsSent);
+            packetGraph.setDataSeries([packetSeries]);
+            packetGraph.updateEndDate();
+          }
+        }
+      });
+      lastResult = res;
+    });
+  }, 1000);
+  
+
+
+
+
 
 // set and monitor bandwidth.
 
@@ -394,7 +529,7 @@ function callProgress() {
 //           adapter.browserDetails.version >= 64)) &&
 //         'RTCRtpSender' in window &&
 //         'setParameters' in window.RTCRtpSender.prototype) {
-//       const sender = pc1.getSenders()[0];
+//       const sender = peerConnection.getSenders()[0];
 //       const parameters = sender.getParameters();
 //       if (!parameters.encodings) {
 //         parameters.encodings = [{}];
@@ -413,8 +548,8 @@ function callProgress() {
 //     }
 //     // Fallback to the SDP munging with local renegotiation way of limiting
 //     // the bandwidth.
-//     pc1.createOffer()
-//         .then(offer => pc1.setLocalDescription(offer))
+//     peerConnection.createOffer()
+//         .then(offer => peerConnection.setLocalDescription(offer))
 //         .then(() => {
 //           const desc = {
 //             type: pc1.remoteDescription.type,

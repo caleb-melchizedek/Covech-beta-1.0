@@ -126,7 +126,17 @@
         </div>
         
     </div>
-    <div id="resolutions">
+    <div id="codecs">
+        <div  style="display:flex; flex-direction: column;align-items: center;">
+            <h3>Choose your preffered Codec before making call:</h3>
+            <select id="codecPreferences" >
+                <option selected value="">Default</option>
+            </select>
+            <div id="actualCodec"></div>
+        </div>
+        
+    </div>
+    <div id="resolutions" style="display:none;">
         <div style="display:flex; flex-direction: column;align-items: center;">
             <p>Select a resolution of choice</p>
             <div id="resolution_buttons">
@@ -149,26 +159,28 @@
 
     <script src="call.js"></script>
     <script>
+        
         document.getElementById("call").style.display = "none";
         document.getElementById("userInfo").style.display = "none";
         document.getElementById("answer").style.display = "none";
         document.getElementById("inCall").style.display = "none";
         document.getElementById("calling").style.display = "none";
         document.getElementById("videos").style.display = "none";
+        document.getElementById("codecs").style.display = "none";
 
     </script>
     <script>
-        function login() {
-            let userName = document.getElementById("userNameInput").value;
-            myName = userName;
-            document.getElementById("userName").style.display = "none";
-            document.getElementById("call").style.display = "block";
+        // function login() {
+        //     let userName = document.getElementById("userNameInput").value;
+        //     myName = userName;
+        //     document.getElementById("userName").style.display = "none";
+        //     document.getElementById("call").style.display = "block";
 
-            document.getElementById("nameHere").innerHTML = userName;
-            document.getElementById("userInfo").style.display = "block";
+        //     document.getElementById("nameHere").innerHTML = userName;
+        //     document.getElementById("userInfo").style.display = "block";
 
-            connectSocket();
-        }
+        //     connectSocket();
+        // }
     </script>
 </body>
 
