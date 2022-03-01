@@ -14,6 +14,9 @@ let remoteStream;
 let localStream;
 
 const codecPreferences = document.querySelector('#codecPreferences');
+const bandwidthSelect = document.querySelector('#bandwidthSelect');
+const bandwidthSelector = document.querySelector('select#bandwidth');
+
 const supportsSetCodecPreferences = window.RTCRtpTransceiver &&
   'setCodecPreferences' in window.RTCRtpTransceiver.prototype;
 
@@ -45,23 +48,26 @@ let callInProgress = false;
 function call() {
     let userToCall = document.getElementById("callName").value;
     otherUser = userToCall;
-
+    codecPreferences.disabled = true;
     beReady()
         .then(bool => {
             processCall(userToCall)
         })
+    bandwidthSelect.style.display="";
 }
 
 //event from html
 function answer() {
     //do the event firing
-
+    codecPreferences.disabled = true;
     beReady()
         .then(bool => {
             processAccept();
         })
 
     document.getElementById("answer").style.display = "none";
+    bandwidthSelect.style.display="";
+    
 }
 
 let pcConfig = {
@@ -157,6 +163,7 @@ function sendCall(data) {
     // document.getElementById("profileImageCA").src = baseURL + otherUserProfile.image;
     document.getElementById("otherUserNameCA").innerHTML = otherUser;
     document.getElementById("calling").style.display = "block";
+    
 }
 
 /**
@@ -206,6 +213,7 @@ function answerCall(data) {
     //to answer a call
     socket.emit("answerCall", data);
     callProgress();
+    
 }
 
 /**
@@ -278,6 +286,7 @@ function beReady() {
         .catch(function (e) {
             alert('getUserMedia() error: ' + e.name);
         });
+        
 }
 
 function createConnectionAndAddStream(stream) {
@@ -428,8 +437,9 @@ function callProgress() {
     document.getElementById("videos").style.display = "block";
     document.getElementById("otherUserNameC").innerHTML = otherUser;
     document.getElementById("inCall").style.display = "block";
-
+    
     callInProgress = true;
+    codecPreferences.disabled = true;
 }
 
     
@@ -448,21 +458,98 @@ let lastRemoteStart = 0;
 
 
 
-// bitrateSeries = new TimelineDataSeries();
-// bitrateGraph = new TimelineGraphView('bitrateGraph', 'bitrateCanvas');
-// bitrateGraph.updateEndDate();
 
-// headerrateSeries = new TimelineDataSeries();
-// headerrateSeries.setColor('green');
+bitrateSeries = new TimelineDataSeries();
+bitrateGraph = new TimelineGraphView('bitrateGraph', 'bitrateCanvas');
+bitrateGraph.updateEndDate();
 
-// packetSeries = new TimelineDataSeries();
-// packetGraph = new TimelineGraphView('packetGraph', 'packetCanvas');
-// packetGraph.updateEndDate();
+headerrateSeries = new TimelineDataSeries();
+headerrateSeries.setColor('green');
+
+packetSeries = new TimelineDataSeries();
+packetGraph = new TimelineGraphView('packetGraph', 'packetCanvas');
+packetGraph.updateEndDate();
+
+
+// set and monitor bandwidth.
+
+bandwidthSelector.onchange = () => {
+    bandwidthSelector.disabled = true;
+    const bandwidth = bandwidthSelector.options[bandwidthSelector.selectedIndex].value;
+  
+    // In Chrome, use RTCRtpSender.setParameters to change bandwidth without
+    // (local) renegotiation. Note that this will be within the envelope of
+    // the initial maximum bandwidth negotiated via SDP.
+    if ((adapter.browserDetails.browser === 'chrome' ||
+         adapter.browserDetails.browser === 'safari' ||
+         adapter.browserDetails.browser === 'edge' ||
+         (adapter.browserDetails.browser === 'firefox' &&
+          adapter.browserDetails.version >= 64)) &&
+        'RTCRtpSender' in window &&
+        'setParameters' in window.RTCRtpSender.prototype) {
+      const sender = peerConnection.getSenders()[0];
+      const parameters = sender.getParameters();
+      if (!parameters.encodings) {
+        parameters.encodings = [{}];
+      }
+      if (bandwidth === 'unlimited') {
+        delete parameters.encodings[0].maxBitrate;
+      } else {
+        parameters.encodings[0].maxBitrate = bandwidth * 1000;
+      }
+      sender.setParameters(parameters)
+          .then(() => {
+            bandwidthSelector.disabled = false;
+          })
+          .catch(e => console.error(e));
+      return;
+    }
+    // Fallback to the SDP munging with local renegotiation way of limiting
+    // the bandwidth.
+    peerConnection.createOffer()
+        .then(offer => peerConnection.setLocalDescription(offer))
+        .then(() => {
+          const desc = {
+            type: peerConnection.remoteDescription.type,
+            sdp: bandwidth === 'unlimited' ?
+            removeBandwidthRestriction(peerConnection.remoteDescription.sdp) :
+            updateBandwidthRestriction(peerConnection.remoteDescription.sdp, bandwidth)
+          };
+          console.log('Applying bandwidth restriction to setRemoteDescription:\n' +
+          desc.sdp);
+          return peerConnection.setRemoteDescription(desc);
+        })
+        .then(() => {
+          bandwidthSelector.disabled = false;
+        })
+        .catch(onSetSessionDescriptionError);
+  };
 
 
 
-//  Get Stats every second
-window.setInterval(() => {
+
+
+function updateBandwidthRestriction(sdp, bandwidth) {
+    let modifier = 'AS';
+    if (adapter.browserDetails.browser === 'firefox') {
+      bandwidth = (bandwidth >>> 0) * 1000;
+      modifier = 'TIAS';
+    }
+    if (sdp.indexOf('b=' + modifier + ':') === -1) {
+      // insert b= after c= line.
+      sdp = sdp.replace(/c=IN (.*)\r\n/, 'c=IN $1\r\nb=' + modifier + ':' + bandwidth + '\r\n');
+    } else {
+      sdp = sdp.replace(new RegExp('b=' + modifier + ':.*\r\n'), 'b=' + modifier + ':' + bandwidth + '\r\n');
+    }
+    return sdp;
+  }
+  
+  function removeBandwidthRestriction(sdp) {
+    return sdp.replace(/b=AS:.*\r\n/, '').replace(/b=TIAS:.*\r\n/, '');
+  }
+  
+  // query getStats every second
+  window.setInterval(() => {
     if (!peerConnection) {
       return;
     }
@@ -509,60 +596,9 @@ window.setInterval(() => {
     });
   }, 1000);
   
-
-
-
-
-
-// set and monitor bandwidth.
-
-// bandwidthSelector.onchange = () => {
-//     bandwidthSelector.disabled = true;
-//     const bandwidth = bandwidthSelector.options[bandwidthSelector.selectedIndex].value;
-  
-//     // In Chrome, use RTCRtpSender.setParameters to change bandwidth without
-//     // (local) renegotiation. Note that this will be within the envelope of
-//     // the initial maximum bandwidth negotiated via SDP.
-//     if ((adapter.browserDetails.browser === 'chrome' ||
-//          adapter.browserDetails.browser === 'safari' ||
-//          (adapter.browserDetails.browser === 'firefox' &&
-//           adapter.browserDetails.version >= 64)) &&
-//         'RTCRtpSender' in window &&
-//         'setParameters' in window.RTCRtpSender.prototype) {
-//       const sender = peerConnection.getSenders()[0];
-//       const parameters = sender.getParameters();
-//       if (!parameters.encodings) {
-//         parameters.encodings = [{}];
-//       }
-//       if (bandwidth === 'unlimited') {
-//         delete parameters.encodings[0].maxBitrate;
-//       } else {
-//         parameters.encodings[0].maxBitrate = bandwidth * 1000;
-//       }
-//       sender.setParameters(parameters)
-//           .then(() => {
-//             bandwidthSelector.disabled = false;
-//           })
-//           .catch(e => console.error(e));
-//       return;
-//     }
-//     // Fallback to the SDP munging with local renegotiation way of limiting
-//     // the bandwidth.
-//     peerConnection.createOffer()
-//         .then(offer => peerConnection.setLocalDescription(offer))
-//         .then(() => {
-//           const desc = {
-//             type: pc1.remoteDescription.type,
-//             sdp: bandwidth === 'unlimited' ?
-//             removeBandwidthRestriction(pc1.remoteDescription.sdp) :
-//             updateBandwidthRestriction(pc1.remoteDescription.sdp, bandwidth)
-//           };
-//           console.log('Applying bandwidth restriction to setRemoteDescription:\n' +
-//           desc.sdp);
-//           return pc1.setRemoteDescription(desc);
-//         })
-//         .then(() => {
-//           bandwidthSelector.disabled = false;
-//         })
-//         .catch(onSetSessionDescriptionError);
-//   };
+  // Return a number between 0 and maxValue based on the input number,
+  // so that the output changes smoothly up and down.
+  function triangle(number, maxValue) {
+    const modulus = (maxValue + 1) * 2;
+    return Math.abs(number % modulus - maxValue);
+  }

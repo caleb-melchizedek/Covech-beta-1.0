@@ -126,16 +126,46 @@
         </div>
         
     </div>
-    <div id="codecs">
-        <div  style="display:flex; flex-direction: column;align-items: center;">
-            <h3>Choose your preffered Codec before making call:</h3>
-            <select id="codecPreferences" >
-                <option selected value="">Default</option>
-            </select>
-            <div id="actualCodec"></div>
+    <div id="controls">
+        <div id="codecs">
+            <div  style="display:flex; flex-direction: column;align-items: center;">
+                <h3>Choose your preffered Codec before making call:</h3>
+                <span>Make your selection before making your call</span>
+                <select id="codecPreferences" >
+                    <option selected value="">Default</option>
+                </select>
+                <div id="actualCodec"></div>
+            </div>
         </div>
         
+        <div id="bandwidthSelect" style="display:flex; flex-direction: column;align-items: center;">
+
+            <label>Bandwidth:</label>
+            <select id="bandwidth">
+                <option value="unlimited" selected>unlimited</option>
+                <option value="2000">2000</option>
+                <option value="1000">1000</option>
+                <option value="500">500</option>
+                <option value="250">250</option>
+                <option value="125">125</option>
+                <option value="75">75</option>
+            </select>
+            kbps
+
+            <div style="display:flex; flex-direction: row;  align-items: center;">
+                <div class="graph-container" style="margin:4px;" id="bitrateGraph">
+                    <div>Bitrate</div>
+                    <canvas id="bitrateCanvas"></canvas>
+                </div>
+                <div class="graph-container" style="margin:4px;" id="packetGraph">
+                    <div>Packets sent per second</div>
+                    <canvas id="packetCanvas"></canvas>
+                </div>
+            </div>
+        </div>
     </div>
+
+    
     <div id="resolutions" style="display:none;">
         <div style="display:flex; flex-direction: column;align-items: center;">
             <p>Select a resolution of choice</p>
@@ -157,7 +187,7 @@
     </div>
 
 
-    <script src="call.js"></script>
+    <script src="call.js" async></script>
     <script>
         
         document.getElementById("call").style.display = "none";
@@ -167,21 +197,15 @@
         document.getElementById("calling").style.display = "none";
         document.getElementById("videos").style.display = "none";
         document.getElementById("codecs").style.display = "none";
+        document.getElementById("bandwidthSelect").style.display = "    ";
+        
 
     </script>
-    <script>
-        // function login() {
-        //     let userName = document.getElementById("userNameInput").value;
-        //     myName = userName;
-        //     document.getElementById("userName").style.display = "none";
-        //     document.getElementById("call").style.display = "block";
+<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+<script src="jsModules/graph.js"></script>
 
-        //     document.getElementById("nameHere").innerHTML = userName;
-        //     document.getElementById("userInfo").style.display = "block";
+<script src="jsModules/ga.js"></script>
 
-        //     connectSocket();
-        // }
-    </script>
 </body>
 
 </html>
