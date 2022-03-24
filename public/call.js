@@ -16,6 +16,7 @@ let localStream;
 const codecPreferences = document.querySelector('#codecPreferences');
 const bandwidthSelect = document.querySelector('#bandwidthSelect');
 const bandwidthSelector = document.querySelector('select#bandwidth');
+const dataStats = document.querySelector('#dataStats');
 
 const supportsSetCodecPreferences = window.RTCRtpTransceiver &&
   'setCodecPreferences' in window.RTCRtpTransceiver.prototype;
@@ -54,6 +55,7 @@ function call() {
             processCall(userToCall)
         })
     bandwidthSelect.style.display="";
+    dataStats.style.display="";
 }
 
 //event from html
@@ -67,6 +69,7 @@ function answer() {
 
     document.getElementById("answer").style.display = "none";
     bandwidthSelect.style.display="";
+    dataStats.style.display="";
     
 }
 
