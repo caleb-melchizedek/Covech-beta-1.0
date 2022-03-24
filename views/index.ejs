@@ -8,7 +8,7 @@
     <title>Video Call</title>
     <link rel="stylesheet" href="call.css">
 
-    <script src='/socket.io/socket.io.js'></script>
+    <script  defer src='/socket.io/socket.io.js'></script>
     <style>
         body {
             display: flex;
@@ -152,7 +152,7 @@
             </select>
             kbps
 
-            <div style="display:flex; flex-direction: row;  align-items: center;">
+            <div style="display:flex; flex-direction: column;  align-items: center;">
                 <div class="graph-container" style="margin:4px;" id="bitrateGraph">
                     <div>Bitrate</div>
                     <canvas id="bitrateCanvas"></canvas>
@@ -187,7 +187,7 @@
     </div>
 
 
-    <script src="call.js" async></script>
+    <script defer src="call.js" async></script>
     <script>
         
         document.getElementById("call").style.display = "none";
@@ -201,10 +201,10 @@
         
 
     </script>
-<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
-<script src="jsModules/graph.js"></script>
+<script defer src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+<script defer src="jsModules/graph.js"></script>
 
-<script src="jsModules/ga.js"></script>
+<script defer src="jsModules/ga.js"></script>
 
 </body>
 

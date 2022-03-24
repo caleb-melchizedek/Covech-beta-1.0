@@ -583,10 +583,10 @@ function updateBandwidthRestriction(sdp, bandwidth) {
             headerrateSeries.addPoint(now, headerrate);
             bitrateGraph.setDataSeries([bitrateSeries, headerrateSeries]);
             bitrateGraph.updateEndDate();
-  
+            
+            let packetrate =packets - lastResult.get(report.id).packetsSent; 
             // calculate number of packets and append to chart
-            packetSeries.addPoint(now, packets -
-              lastResult.get(report.id).packetsSent);
+            packetSeries.addPoint(now, packetrate);
             packetGraph.setDataSeries([packetSeries]);
             packetGraph.updateEndDate();
           }
