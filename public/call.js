@@ -5,6 +5,8 @@ const baseURL = "/"
 let localVideo = document.querySelector('#localVideo');
 let remoteVideo = document.querySelector('#remoteVideo');
 
+let onlineUsersList = document.querySelector('#onlineUsers')
+
 let otherUser;
 let remoteRTCMessage;
 
@@ -55,7 +57,7 @@ function call() {
             processCall(userToCall)
         })
     bandwidthSelect.style.display="";
-    dataStats.style.display="";
+    dataStats.style.display="flex";
 }
 
 //event from html
@@ -69,7 +71,7 @@ function answer() {
 
     document.getElementById("answer").style.display = "none";
     bandwidthSelect.style.display="";
-    dataStats.style.display="";
+    dataStats.style.display="flex";
     
 }
 
@@ -100,7 +102,9 @@ function connectSocket() {
             name: myName
         }
     });
-
+    socket.on('updateUsersOnline',data=>{
+        updateOnlineUsersList(data.usersOnline)
+    })
     socket.on('newCall', data => {
         //when other called you
         console.log(data);
@@ -149,6 +153,9 @@ function connectSocket() {
 
     })
 
+    socket.on("userDisconected",(data)=>{
+
+    })
 }
 
 /**
@@ -180,7 +187,28 @@ function sendCall(data) {
 
 
 //functions
+function updateOnlineUsersList(list){
+    while (onlineUsersList.firstChild) {
+        onlineUsersList.removeChild(onlineUsersList.firstChild);
+      }
+    console.log(list); 
 
+    list.forEach(e=>{
+        let userDiv = document.createElement('div');
+        let pfImg = document.createElement('img');
+        pfImg.src='/profile.png';
+        
+        userDiv.setAttribute('class','onlineUserDiv');
+        userDiv.addEventListener('click',function(e){
+            document.querySelector('#callName').value= userDiv.innerText
+        })
+
+        onlineUsersList.appendChild(userDiv);
+        userDiv.innerHTML=`${e}`;
+        userDiv.innerText=`${e}`;
+        userDiv.appendChild(pfImg);
+    });
+}
 function login() {
     let userName = document.getElementById("userNameInput").value;
     myName = userName;
@@ -194,6 +222,8 @@ function login() {
 
     document.getElementById("codecs").style.display = "";
     showCodecsAvailable();
+    document.getElementById("onlineUserContainer").style.display = "";
+    
 }
 
 function showCodecsAvailable(){

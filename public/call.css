@@ -1,3 +1,53 @@
+body {
+  background-image:url("/images/starfall-gif-46.gif");
+  background-size:cover;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+#body{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding-top: 24px;
+  height: 85vh;
+}
+
+#userName,#userInfo,#codecs,#bandwithSelect{
+  color:white;
+}
+
+#onlineUserContainer h3{
+color:white;
+padding: 5px;
+}
+
+#onlineUserContainer{
+  height:90vh;
+  width:200px;
+  background: none;
+  /* border:2px white solid; */
+  position:fixed;
+  padding: 5px;
+}
+.onlineUserDiv{
+background-color: white;
+padding:2px;
+font-size: large;
+margin:5px;
+border-radius: 3px;
+height:50px;
+display:flex;
+flex-direction: row-reverse;
+justify-content:flex-end;
+align-items: center;
+}
+
+.onlineUserDiv img{ 
+  height:40px;
+  margin-right:10px;
+}
+
 .dialWrapper {
     width: 300px;
     background-color: antiquewhite;
@@ -20,10 +70,16 @@
     justify-content: center;
     cursor: pointer;
   }
+
+  #inCall{
+    color: white;
+    font-size: larger;
+  }
   
   .incomingWrapper {
     width: 300px;
     background-color: antiquewhite;
+    color: white;
     display: flex;
     flex-direction: column;
   }

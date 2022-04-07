@@ -14,14 +14,7 @@
     <script defer src="jsModules/ga.js"></script>
 
     <style>
-        body {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding-top: 24px;
-            min-height: 90vh;
-        }
+       
     </style>
 
     <script>
@@ -30,11 +23,20 @@
 </head>
 
 <body>
-    <div>
+    <div id="onlineUserContainer">
+        <h3>Online Users</h3>
+        <div id="onlineUsers"></div>
+    </div>
+    
+    <div id="body">
         <div>
             <!-- to input username and login -->
             <div id="userName">
                 <div style="display: flex; flex-direction: column; align-items: center; width: 300px;">
+                    <div style="text-align:center;font-size: x-large;">
+                        <h1 style="margin:0">Covech</h1>
+                    </div>
+                    <small style="color: white; padding-bottom:20px; padding-top:5px"> chat with random people online</small>
                     <input placeholder="What should we call you?"
                         style="text-align:center; height: 50px; font-size: xx-large;" type="text" name=""
                         id="userNameInput">
@@ -44,7 +46,7 @@
             </div>
 
             <!-- to display current login user information  -->
-            <div id="userInfo">
+            <div id="userInfo" >
                 <div style="display: flex; flex-direction: column; align-items: center; width: 300px;">
                     <h1>Hello, <span id="nameHere"></span></h1>
                 </div>
@@ -106,82 +108,79 @@
 
             <!-- to show call in progress call -->
             <div id="inCall">
-                <div class="incomingWrapper">
-                    <div class="itemWrapper">
-                        <h3>On Call With</h3>
-                        <h2 style="line-height: 0px;"><span id="otherUserNameC"></span></h2>
-                    </div>
+                <div class="">
+                    <h6>On Call With <span id="otherUserNameC"></span></h6>
+                    <!-- <h6 style="line-height: 0px;"><span id="otherUserNameC"></span></h6> -->
                 </div>
             </div>
 
-            <br>
-
             <!-- to show local and remote video -->
-            <div id="videos">
-                <div style="position:absolute; top:0; right:0; padding-right: 20px; padding-top: 20px">
-                    <video width="100px" id="localVideo" autoplay muted playsinline></video>
-                </div>
+            <div id="videos" style="width: 500px; position:relative;">
                 <div id="remoteVideoDiv">
                     <video style="width: 500px;" id="remoteVideo" autoplay playsinline></video>
                 </div>
+                <div style="position:absolute; bottom:0; right:0;border:1px white solid;">
+                    <video width="100px" id="localVideo" autoplay muted playsinline></video>
+                </div>
             </div>
-            <div style="flex-grow: 1;">
+            <div style="">
             </div>
         </div>
-        
-    </div>
-    <div id="controls">
-        <div id="codecs">
-            <div  style="display:flex; flex-direction: column;align-items: center;">
-                <h3>Choose your preffered Codec before making call:</h3>
-                <span>Make your selection before making your call</span>
-                <select id="codecPreferences" >
-                    <option selected value="">Default</option>
+        <div id="controls">
+            <div id="codecs">
+                <div  style="display:flex; flex-direction: column;align-items: center;">
+                    <h3>Choose your preffered Codec before making call:</h3>
+                    <span>Make your selection before making your call</span>
+                    <select id="codecPreferences" >
+                        <option selected value="">Default</option>
+                    </select>
+                    <div id="actualCodec"></div>
+                </div>
+            </div>
+            
+            <div id="bandwidthSelect" style="display:flex; color: white; flex-direction: column;align-items: center;">
+
+                <label>Bandwidth:</label>
+                <select id="bandwidth">
+                    <option value="unlimited" selected>unlimited</option>
+                    <option value="2000">2000</option>
+                    <option value="1000">1000</option>
+                    <option value="500">500</option>
+                    <option value="250">250</option>
+                    <option value="125">125</option>
+                    <option value="75">75</option>
                 </select>
-                <div id="actualCodec"></div>
+                kbps
+
+                <div id="dataStats" style="position:fixed; bottom:5px; right:5px; display:flex; flex-direction: column;  align-items: center;">
+                    <h3>Data Consumption</h3>
+                    <div class="graph-container" style="margin:4px;" id="bitrateGraph">
+                        <div>Bitrate</div>
+                        <canvas id="bitrateCanvas"></canvas>
+                    </div>
+                    <div class="graph-container" style="margin:4px;" id="packetGraph">
+                        <div>Packets sent per second</div>
+                        <canvas id="packetCanvas"></canvas>
+                    </div>
+                </div>
             </div>
         </div>
+
         
-        <div id="bandwidthSelect" style="display:flex; flex-direction: column;align-items: center;">
-
-            <label>Bandwidth:</label>
-            <select id="bandwidth">
-                <option value="unlimited" selected>unlimited</option>
-                <option value="2000">2000</option>
-                <option value="1000">1000</option>
-                <option value="500">500</option>
-                <option value="250">250</option>
-                <option value="125">125</option>
-                <option value="75">75</option>
-            </select>
-            kbps
-
-            <div id="dataStats" style="display:flex; flex-direction: column;  align-items: center;">
-                <div class="graph-container" style="margin:4px;" id="bitrateGraph">
-                    <div>Bitrate</div>
-                    <canvas id="bitrateCanvas"></canvas>
-                </div>
-                <div class="graph-container" style="margin:4px;" id="packetGraph">
-                    <div>Packets sent per second</div>
-                    <canvas id="packetCanvas"></canvas>
+        <div id="resolutions" style="display:none;">
+            <div style="display:flex; flex-direction: column;align-items: center;">
+                <p>Select a resolution of choice</p>
+                <div id="resolution_buttons">
+                    <button id="qvga"onclick="changeResolution('qvga')">QVGA (320x240)</button>
+                    <button id="vga"onclick="changeResolution('vga')">VGA (640x480)</button>
+                    <button id="hd"onclick="changeResolution('hd')">HD (1280x720)</button>
+                    <button id="full-hd"onclick="changeResolution('fhd')">Full HD (1920x1080)</button>
+                    <button id="televisionFourK"onclick="changeResolution('4k')">Television 4K (3840x2160)</button>
                 </div>
             </div>
         </div>
     </div>
-
-    
-    <div id="resolutions" style="display:none;">
-        <div style="display:flex; flex-direction: column;align-items: center;">
-            <p>Select a resolution of choice</p>
-            <div id="resolution_buttons">
-                <button id="qvga"onclick="changeResolution('qvga')">QVGA (320x240)</button>
-                <button id="vga"onclick="changeResolution('vga')">VGA (640x480)</button>
-                <button id="hd"onclick="changeResolution('hd')">HD (1280x720)</button>
-                <button id="full-hd"onclick="changeResolution('fhd')">Full HD (1920x1080)</button>
-                <button id="televisionFourK"onclick="changeResolution('4k')">Television 4K (3840x2160)</button>
-            </div>
-        </div>
-    </div>
+   
     <div>
         <div style="display: flex; flex-direction: column;">
             <!-- <a href="https://www.bloggernepal.com/2021/05/setup-stun-and-turn-server-on-ubuntu.html">
@@ -203,7 +202,7 @@
         document.getElementById("codecs").style.display = "none";
         document.getElementById("bandwidthSelect").style.display = "none";
         document.getElementById("dataStats").style.display = "none";
-
+        document.getElementById("onlineUserContainer").style.display = "none";
     </script>
 
 
