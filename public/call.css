@@ -29,6 +29,7 @@ padding: 5px;
   /* border:2px white solid; */
   position:fixed;
   padding: 5px;
+  z-index: 3;
 }
 .onlineUserDiv{
 background-color: white;
@@ -115,9 +116,29 @@ align-items: center;
   }
 
   #controls{
-    width: 100%
+    width: 100%;
+    z-index:10;
+  }
+
+  #dataStats{
+    position:fixed; 
+    bottom:5px; 
+    right:5px; 
+    display:flex; 
+    flex-direction: column;  
+    align-items: center;
+    z-index:5;
+  }
+
+  .showDataStats{
+    color:black;
+    background-color: white;
+    border:none;
+    border-radius:6px;
+    font-size:medium;
+    padding:5px;
   }
 
   div.graph-container {
-    width: calc(50% - 1em);
+    
   }

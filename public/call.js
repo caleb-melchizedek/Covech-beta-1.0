@@ -237,6 +237,15 @@ function login() {
     
 }
 
+function toggleDataStats(){
+    let graphs=document.querySelector(".dataStatsContainer")
+    console.log(graphs.style)
+    if(graphs.style.display==="none"){
+        graphs.style.display="block"
+    }else{
+        graphs.style.display="none"
+    }
+}
 function showCodecsAvailable(){
     if (supportsSetCodecPreferences) {
     const {codecs} = RTCRtpSender.getCapabilities('video');
