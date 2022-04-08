@@ -139,11 +139,12 @@ function connectSocket() {
         callProgress()
     })
 
-    socket.on('ICEcandidate', data => {
+    socket.on('ICEcandidateRecieved', data => {
         // console.log(data);
         console.log("GOT ICE candidate");
 
         let message = data.rtcMessage
+        console.log(data.rtcMessage)
 
         let candidate = new RTCIceCandidate({
             sdpMLineIndex: message.label,
@@ -151,8 +152,9 @@ function connectSocket() {
         });
 
         if (peerConnection) {
-            console.log("ICE candidate Added");
+            
             peerConnection.addIceCandidate(candidate);
+            console.log("ICE candidate Added");
         } else {
             console.log("ICE candidate Pushed");
             iceCandidatesFromCaller.push(candidate);
@@ -264,7 +266,7 @@ function answerCall(data) {
  */
 function sendICEcandidate(data) {
     //send only if we have caller, else no need to
-    console.log("Send ICE candidate");
+    console.log("Sending ICE candidate");
     socket.emit("ICEcandidate", data)
 }
 

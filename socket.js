@@ -47,7 +47,7 @@ module.exports.initIO = (httpServer) => {
             let otherUser = data.user;
             let rtcMessage = data.rtcMessage;
 
-            socket.to(otherUser).emit("ICEcandidate", {
+            socket.to(otherUser).emit("ICEcandidateRecieved", {
                 sender: socket.user,
                 rtcMessage: rtcMessage
             })
