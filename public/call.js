@@ -84,9 +84,9 @@ let pcConfig = {
             //     "username": "guest",
             //     "credential": "somepassword"
             // },
-            {"url": "stun:numb.viagenie.ca"},
+            {"url": "stun:stun.numb.viagenie.ca"},
             {
-                "url": "turn:numb.viagenie.ca",
+                "url": "turn:turn.numb.viagenie.ca",
                 "username": " codeprogrammer25112018@gmail.com",
                 "credential": "CodeProgrammer25112018"
             }
