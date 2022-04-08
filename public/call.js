@@ -85,6 +85,7 @@ let pcConfig = {
             //     "credential": "somepassword"
             // },
             {"url": "stun:stun.numb.viagenie.ca?transport=tcp"},
+            {"url":'stun:stun.l.google.com:19302'},
             {
                 "url": "turn:turn.numb.viagenie.ca?transport=tcp",
                 "username": " codeprogrammer25112018@gmail.com",
