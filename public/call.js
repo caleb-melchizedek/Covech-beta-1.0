@@ -84,9 +84,9 @@ let pcConfig = {
             //     "username": "guest",
             //     "credential": "somepassword"
             // },
-            {"url": "stun:stun.numb.viagenie.ca"},
+            {"url": "stun:stun.numb.viagenie.ca?transport=tcp"},
             {
-                "url": "turn:turn.numb.viagenie.ca",
+                "url": "turn:turn.numb.viagenie.ca?transport=tcp",
                 "username": " codeprogrammer25112018@gmail.com",
                 "credential": "CodeProgrammer25112018"
             }
@@ -408,10 +408,10 @@ function createPeerConnection() {
 }
 
 function handleIceCandidate(event) {
-    // console.log('icecandidate event: ', event);
+     console.log('icecandidate event: ', event);
     if (event.candidate) {
         console.log("Local ICE candidate");
-        // console.log(event.candidate.candidate);
+         console.log(event.candidate.candidate);
 
         sendICEcandidate({
             user: otherUser,
