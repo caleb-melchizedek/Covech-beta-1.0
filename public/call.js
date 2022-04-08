@@ -153,16 +153,16 @@ function connectSocket() {
             candidate: message.candidate
         });
 
-        // peerConnection.addIceCandidate(candidate);
-        // console.log("ICE candidate Added");
+        peerConnection.addIceCandidate(candidate);
+        console.log("ICE candidate Added");
 
-        if (peerConnection) {
-            peerConnection.addIceCandidate(candidate);
-            console.log("ICE candidate Added");
-        } else {
-            console.log("ICE candidate Pushed");
-            iceCandidatesFromCaller.push(candidate);
-        }
+        // if (peerConnection) {
+        //     peerConnection.addIceCandidate(candidate);
+        //     console.log("ICE candidate Added");
+        // } else {
+        //     console.log("ICE candidate Pushed");
+        //     iceCandidatesFromCaller.push(candidate);
+        // }
 
     })
 
