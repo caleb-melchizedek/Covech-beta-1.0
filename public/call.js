@@ -78,9 +78,15 @@ function answer() {
 let pcConfig = {
     "iceServers":
         [
-            
+            // { "url": "stun:stun.jap.bloggernepal.com:5349" },
+            // {
+            //     "url": "turn:turn.jap.bloggernepal.com:5349",
+            //     "username": "guest",
+            //     "credential": "somepassword"
+            // },
+            {"url": "stun:numb.viagenie.ca"},
             {
-                "url": "numb.viagenie.ca",
+                "url": "turn:numb.viagenie.ca",
                 "username": " codeprogrammer25112018@gmail.com",
                 "credential": "CodeProgrammer25112018"
             }
