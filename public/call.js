@@ -84,10 +84,10 @@ let pcConfig = {
             //     "username": "guest",
             //     "credential": "somepassword"
             // },
-            {"url":'stun:stun.l.google.com:19302'},
-            {"url": "stun:stun.numb.viagenie.ca"},
+            // {"url":'stun:stun.l.google.com:19302'},
+            // {"url": "stun:stun.numb.viagenie.ca"},
             {
-                "url": "turn:turn.numb.viagenie.ca",
+                "url": "turn:numb.viagenie.ca",
                 "username": " codeprogrammer25112018@gmail.com",
                 "credential": "CodeProgrammer25112018"
             }
@@ -380,7 +380,7 @@ function processAccept() {
                 console.log("Adding ICE candidate From queue");
                 try {
                     peerConnection.addIceCandidate(candidate).then(() => {
-                        console.log(iceCandidatesFromCaller);
+                        console.log(peerConnection.iceCandidate);
                     }).catch(error => {
                         console.log(error);
                     })
