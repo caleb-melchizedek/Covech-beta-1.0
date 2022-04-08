@@ -117,3 +117,8 @@ align-items: center;
   #controls{
     width: 100%
   }
+
+  div.graph-container {
+    margin: 0.5em;
+    width: calc(50% - 1em);
+  }
