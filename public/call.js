@@ -84,10 +84,10 @@ let pcConfig = {
             //     "username": "guest",
             //     "credential": "somepassword"
             // },
-            {"url": "stun:stun.numb.viagenie.ca?transport=tcp"},
-            {"url":'stun:stun.l.google.com:19302'},
+            {"url": "stun:stun.numb.viagenie.ca"},
+            // {"url":'stun:stun.l.google.com:19302'},
             {
-                "url": "turn:turn.numb.viagenie.ca?transport=tcp",
+                "url": "turn:turn.numb.viagenie.ca",
                 "username": " codeprogrammer25112018@gmail.com",
                 "credential": "CodeProgrammer25112018"
             }
@@ -142,6 +142,7 @@ function connectSocket() {
     socket.on('ICEcandidateRecieved', data => {
         // console.log(data);
         console.log("GOT ICE candidate");
+        console.log(data);
 
         let message = data.rtcMessage
         console.log(data.rtcMessage)
@@ -151,14 +152,16 @@ function connectSocket() {
             candidate: message.candidate
         });
 
-        if (peerConnection) {
-            
-            peerConnection.addIceCandidate(candidate);
-            console.log("ICE candidate Added");
-        } else {
-            console.log("ICE candidate Pushed");
-            iceCandidatesFromCaller.push(candidate);
-        }
+        peerConnection.addIceCandidate(candidate);
+        console.log("ICE candidate Added");
+
+        // if (peerConnection) {
+        //     peerConnection.addIceCandidate(candidate);
+        //     console.log("ICE candidate Added");
+        // } else {
+        //     console.log("ICE candidate Pushed");
+        //     iceCandidatesFromCaller.push(candidate);
+        // }
 
     })
 
