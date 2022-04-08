@@ -84,6 +84,7 @@ let pcConfig = {
             //     "username": "guest",
             //     "credential": "somepassword"
             // },
+            {"url":'stun:stun.l.google.com:19302'},
             {"url": "stun:stun.numb.viagenie.ca"},
             {
                 "url": "turn:turn.numb.viagenie.ca",
@@ -151,16 +152,16 @@ function connectSocket() {
             candidate: message.candidate
         });
 
-        peerConnection.addIceCandidate(candidate);
-        console.log("ICE candidate Added");
+        // peerConnection.addIceCandidate(candidate);
+        // console.log("ICE candidate Added");
 
-        // if (peerConnection) {
-        //     peerConnection.addIceCandidate(candidate);
-        //     console.log("ICE candidate Added");
-        // } else {
-        //     console.log("ICE candidate Pushed");
-        //     iceCandidatesFromCaller.push(candidate);
-        // }
+        if (peerConnection) {
+            peerConnection.addIceCandidate(candidate);
+            console.log("ICE candidate Added");
+        } else {
+            console.log("ICE candidate Pushed");
+            iceCandidatesFromCaller.push(candidate);
+        }
 
     })
 
