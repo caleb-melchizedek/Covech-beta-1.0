@@ -377,10 +377,10 @@ function processAccept() {
             for (let i = 0; i < iceCandidatesFromCaller.length; i++) {
                 //
                 let candidate = iceCandidatesFromCaller[i];
-                console.log("ICE candidate Added From queue");
+                console.log("Adding ICE candidate From queue");
                 try {
-                    peerConnection.addIceCandidate(candidate).then(done => {
-                        console.log(done);
+                    peerConnection.addIceCandidate(candidate).then(() => {
+                        console.log(iceCandidatesFromCaller);
                     }).catch(error => {
                         console.log(error);
                     })
@@ -388,8 +388,8 @@ function processAccept() {
                     console.log(error);
                 }
             }
-            iceCandidatesFromCaller = [];
-            console.log("ICE candidate queue cleared");
+            // iceCandidatesFromCaller = [];
+            // console.log("ICE candidate queue cleared");
         } else {
             console.log("NO Ice candidate in queue");
         }
