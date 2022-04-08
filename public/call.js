@@ -86,10 +86,11 @@ let pcConfig = {
             // },
             // {"url":'stun:stun.l.google.com:19302'},
             // {"url": "stun:stun.numb.viagenie.ca"},
+
             {
-                "url": "turn:numb.viagenie.ca",
-                "username": " codeprogrammer25112018@gmail.com",
-                "credential": "CodeProgrammer25112018"
+                urls: "turn:numb.viagenie.ca",
+                username: " codeprogrammer25112018@gmail.com",
+                credential: "CodeProgrammer25112018"
             }
         ]
 };
