@@ -315,8 +315,8 @@ function createConnectionAndAddStream(stream) {
 
 function createPeerConnection() {
     try {
-        // peerConnection = new RTCPeerConnection(pcConfig);
-        peerConnection = new RTCPeerConnection();
+        peerConnection = new RTCPeerConnection(pcConfig);
+        // peerConnection = new RTCPeerConnection();
         peerConnection.onicecandidate = handleIceCandidate;
         peerConnection.ontrack = handleRemoteStreamAdded;
 
