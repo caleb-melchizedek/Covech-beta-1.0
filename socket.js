@@ -43,11 +43,12 @@ module.exports.initIO = (httpServer) => {
 
         })
 
-        socket.on('ICEcandidate', (data) => {
+        socket.on('localICEcandidate', (data) => {
             let otherUser = data.user;
             let rtcMessage = data.rtcMessage;
+            console.log("local candidate sent.")
 
-            socket.to(otherUser).emit("ICEcandidateRecieved", {
+            socket.to(otherUser).emit("remoteICEcandidate", {
                 sender: socket.user,
                 rtcMessage: rtcMessage
             })

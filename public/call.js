@@ -117,7 +117,6 @@ function connectSocket() {
         //when other called you
         console.log(data);
         //show answer button
-
         otherUser = data.caller;
         remoteRTCMessage = data.rtcMessage
 
@@ -140,29 +139,26 @@ function connectSocket() {
         callProgress()
     })
 
-    socket.on('ICEcandidateRecieved', data => {
-        // console.log(data);
-        console.log("GOT ICE candidate");
-        console.log(data);
+    socket.on('remoteICEcandidate', data => {
+        console.log("GOT remote ICE candidate");
+        let message = data.rtcMessage;
+        console.log(message.candidate);
 
-        let message = data.rtcMessage
-        console.log(data.rtcMessage)
+        let candidate = new RTCIceCandidate(
+           message.candidate
+        );
+            console.log('remote ICE candidate: '+candidate);
+        // peerConnection.addIceCandidate(candidate);
+        // console.log("ICE candidate Added");
 
-        let candidate = new RTCIceCandidate({
-            sdpMLineIndex: message.label,
-            candidate: message.candidate
-        });
-
-        peerConnection.addIceCandidate(candidate);
-        console.log("ICE candidate Added");
-
-        // if (peerConnection) {
-        //     peerConnection.addIceCandidate(candidate);
-        //     console.log("ICE candidate Added");
-        // } else {
-        //     console.log("ICE candidate Pushed");
-        //     iceCandidatesFromCaller.push(candidate);
-        // }
+        if (peerConnection) {
+            peerConnection.addIceCandidate(candidate);
+            console.log("ICE candidate Added");
+        } else {
+            console.log("ICE candidate Pushed");
+            iceCandidatesFromCaller.push(candidate);
+            console.log(iceCandidatesFromCaller);
+        }
 
     })
 
@@ -200,6 +196,24 @@ function sendCall(data) {
 
 
 //functions
+
+function login() {
+    let userName = document.getElementById("userNameInput").value;
+    myName = userName;
+    document.getElementById("userName").style.display = "none";
+    document.getElementById("call").style.display = "block";
+
+    document.getElementById("nameHere").innerHTML = userName;
+    document.getElementById("userInfo").style.display = "block";
+
+    connectSocket();
+
+    document.getElementById("codecs").style.display = "";
+    showCodecsAvailable();
+    document.getElementById("onlineUserContainer").style.display = "";
+    
+}
+
 function updateOnlineUsersList(list){
     while (onlineUsersList.firstChild) {
         onlineUsersList.removeChild(onlineUsersList.firstChild);
@@ -222,21 +236,104 @@ function updateOnlineUsersList(list){
         userDiv.appendChild(pfImg);
     });
 }
-function login() {
-    let userName = document.getElementById("userNameInput").value;
-    myName = userName;
-    document.getElementById("userName").style.display = "none";
-    document.getElementById("call").style.display = "block";
 
-    document.getElementById("nameHere").innerHTML = userName;
-    document.getElementById("userInfo").style.display = "block";
+function beReady() {
+    return navigator.mediaDevices.getUserMedia({
+        audio: true,
+        video: true,
+    })
+        .then(stream => {
+            localStream = stream;
+            localVideo.srcObject = stream;
 
-    connectSocket();
+            return createConnectionAndAddStream(stream)
+        })
+        .catch(function (e) {
+            alert('getUserMedia() error: ' + e.name);
+        });
+        
+}
 
-    document.getElementById("codecs").style.display = "";
-    showCodecsAvailable();
-    document.getElementById("onlineUserContainer").style.display = "";
-    
+
+function processCall(userName) {
+    peerConnection.createOffer((sessionDescription) => {
+        peerConnection.setLocalDescription(sessionDescription);
+        console.log(sessionDescription);
+        sendCall({
+            name: userName,
+            rtcMessage: sessionDescription
+        })
+    }, (error) => {
+        console.log("Error");
+    });
+}
+
+function processAccept() {
+    peerConnection.setRemoteDescription(new RTCSessionDescription(remoteRTCMessage));
+    peerConnection.createAnswer((sessionDescription) => {
+        peerConnection.setLocalDescription(sessionDescription);
+
+        if (iceCandidatesFromCaller.length > 0) {
+            //I am having issues with call not being processed in real world (internet, not local)
+            //so I will push iceCandidates I received after the call arrived, push it and, once we accept
+            //add it as ice candidate
+            //if the offer rtc message contains all thes ICE candidates we can ingore this.
+            for (let i = 0; i < iceCandidatesFromCaller.length; i++) {
+                //
+                let candidate = iceCandidatesFromCaller[i];
+                console.log("Adding ICE candidate From queue");
+                try {
+                    peerConnection.addIceCandidate(candidate).then(() => {
+                        console.log(peerConnection.iceCandidate);
+                    }).catch(error => {
+                        console.log(error);
+                    })
+                } catch (error) {
+                    console.log(error);
+                }
+            }
+            // iceCandidatesFromCaller = [];
+            // console.log("ICE candidate queue cleared");
+        } else {
+            console.log("NO Ice candidate in queue");
+        }
+
+        answerCall({
+            caller: otherUser,
+            rtcMessage: sessionDescription
+        })
+
+    }, (error) => {
+        console.log("Error");
+    })
+}
+
+function createConnectionAndAddStream(stream) {
+    createPeerConnection();
+    stream.getTracks().forEach(function (track) {
+    peerConnection.addTrack(track,stream)});
+
+    return true;
+}
+
+function createPeerConnection() {
+    try {
+        peerConnection = new RTCPeerConnection(pcConfig);
+        // peerConnection = new RTCPeerConnection();
+        peerConnection.onicecandidate = handleIceCandidate;
+        peerConnection.ontrack = handleRemoteStreamAdded;
+
+        // peerConnection.addEventListener("icecandidate",(e)=> {handleIceCandidate(e)});
+        // peerConnection.addEventListener("track",(e)=>{handleRemoteStreamAdded(e)} );
+
+        peerConnection.addEventListener=("removestream", (e)=>{handleRemoteStreamRemoved(e)});
+        console.log('Created RTCPeerConnnection');
+        return;
+    } catch (e) {
+        console.log('Failed to create PeerConnection, exception: ' + e.message);
+        alert('Cannot create RTCPeerConnection object.');
+        return;
+    }
 }
 
 function toggleDataStats(){
@@ -264,12 +361,7 @@ function showCodecsAvailable(){
   }
 }
 
-function answerCall(data) {
-    //to answer a call
-    socket.emit("answerCall", data);
-    callProgress();
-    
-}
+
 
 /**
  * 
@@ -277,11 +369,7 @@ function answerCall(data) {
  * @param {number} data.user - the other user //either callee or caller 
  * @param {Object} data.rtcMessage - iceCandidate data 
  */
-function sendICEcandidate(data) {
-    //send only if we have caller, else no need to
-    console.log("Sending ICE candidate");
-    socket.emit("ICEcandidate", data)
-}
+
 
 function changeResolution(reso){
     let cnstrn
@@ -327,136 +415,67 @@ function changeResolution(reso){
 }
 
 
-function beReady() {
-    return navigator.mediaDevices.getUserMedia({
-        audio: true,
-        video: true,
-    })
-        .then(stream => {
-            localStream = stream;
-            localVideo.srcObject = stream;
 
-            return createConnectionAndAddStream(stream)
-        })
-        .catch(function (e) {
-            alert('getUserMedia() error: ' + e.name);
-        });
-        
+
+
+
+
+function answerCall(data) {
+    //to answer a call
+    socket.emit("answerCall", data);
+    callProgress();
+    
 }
 
-function createConnectionAndAddStream(stream) {
-    createPeerConnection();
-    stream.getTracks().forEach(function (track) {
-    peerConnection.addTrack(track,stream)});
-
-    return true;
-}
-
-function processCall(userName) {
-    peerConnection.createOffer((sessionDescription) => {
-        peerConnection.setLocalDescription(sessionDescription);
-        sendCall({
-            name: userName,
-            rtcMessage: sessionDescription
-        })
-    }, (error) => {
-        console.log("Error");
-    });
-}
-
-function processAccept() {
-
-    peerConnection.setRemoteDescription(new RTCSessionDescription(remoteRTCMessage));
-    peerConnection.createAnswer((sessionDescription) => {
-        peerConnection.setLocalDescription(sessionDescription);
-
-        if (iceCandidatesFromCaller.length > 0) {
-            //I am having issues with call not being processed in real world (internet, not local)
-            //so I will push iceCandidates I received after the call arrived, push it and, once we accept
-            //add it as ice candidate
-            //if the offer rtc message contains all thes ICE candidates we can ingore this.
-            for (let i = 0; i < iceCandidatesFromCaller.length; i++) {
-                //
-                let candidate = iceCandidatesFromCaller[i];
-                console.log("Adding ICE candidate From queue");
-                try {
-                    peerConnection.addIceCandidate(candidate).then(() => {
-                        console.log(peerConnection.iceCandidate);
-                    }).catch(error => {
-                        console.log(error);
-                    })
-                } catch (error) {
-                    console.log(error);
-                }
-            }
-            // iceCandidatesFromCaller = [];
-            // console.log("ICE candidate queue cleared");
-        } else {
-            console.log("NO Ice candidate in queue");
-        }
-
-        answerCall({
-            caller: otherUser,
-            rtcMessage: sessionDescription
-        })
-
-    }, (error) => {
-        console.log("Error");
-    })
-}
 
 /////////////////////////////////////////////////////////
 
-function createPeerConnection() {
-    try {
-        peerConnection = new RTCPeerConnection(pcConfig);
-        // peerConnection = new RTCPeerConnection();
-        peerConnection.addEventListener("icecandidate",(e)=> {handleIceCandidate(e)});
-        peerConnection.addEventListener("track",(e)=>{handleRemoteStreamAdded(e)} );
-        peerConnection.addEventListener=("removestream", (e)=>{handleRemoteStreamRemoved(e)});
-        console.log('Created RTCPeerConnnection');
-        return;
-    } catch (e) {
-        console.log('Failed to create PeerConnection, exception: ' + e.message);
-        alert('Cannot create RTCPeerConnection object.');
-        return;
-    }
-}
+
 
 function handleIceCandidate(event) {
-     console.log('icecandidate event: ', event);
-    if (event.candidate) {
-        console.log("Local ICE candidate");
-         console.log(event.candidate.candidate);
+// example reference code
+    // if (e.candidate) {
+    //     const payload = {
+    //         target: otherUser.current,
+    //         candidate: e.candidate,
+    //     }
+    //     socketRef.current.emit("ice-candidate", payload);
+    // }
 
-        sendICEcandidate({
+
+    if (event.candidate) {
+        console.log("Local ICE candidate",event.candidate);
+        const payload = {
             user: otherUser,
             rtcMessage: {
                 label: event.candidate.sdpMLineIndex,
                 id: event.candidate.sdpMid,
-                candidate: event.candidate.candidate
+                candidate: event.candidate
             }
-        })
+        }
+        socket.emit("localICEcandidate", payload)
 
     } else {
         console.log('End of candidates.');
     }
 }
 
-function handleRemoteStreamAdded(ev) {
-    console.log('Remote stream added.');
-    let inboundStream =null
-        if (ev.streams && ev.streams[0]) {
-            remoteStream = ev.streams[0];
+function handleRemoteStreamAdded(event) {
+    remoteStream = event.streams[0];
     remoteVideo.srcObject = remoteStream;
-        } else {
-          if (!inboundStream) {
-            inboundStream = new MediaStream();
-            videoElem.srcObject = inboundStream;
-          }
-          inboundStream.addTrack(ev.track);
-        }
-      ;
+    console.log('Remote stream added.');
+    // let inboundStream =null
+    //     if (ev.streams && event.streams[0]) {
+    //         remoteStream = event.streams[0];
+    // remoteVideo.srcObject = remoteStream;
+    //     } else {
+    //       if (!inboundStream) {
+    //         inboundStream = new MediaStream();
+    //         videoElem.srcObject = inboundStream;
+    //       }
+    //       inboundStream.addTrack(ev.track);
+    //     }
+    //   ;
 
     
 }
