@@ -88,7 +88,7 @@ let pcConfig = {
             // {"url": "stun:stun.numb.viagenie.ca"},
 
             {
-                urls: "turn:numb.viagenie.ca:3478",
+                urls: "turn:numb.viagenie.ca:5349",
                 username: " codeprogrammer25112018@gmail.com",
                 credential: "CodeProgrammer25112018"
             }
