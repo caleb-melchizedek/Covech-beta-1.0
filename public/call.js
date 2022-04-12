@@ -88,7 +88,7 @@ let pcConfig = {
             // {"url": "stun:stun.numb.viagenie.ca"},
 
             {
-                urls: "turn:numb.viagenie.ca",
+                urls: "turn:numb.viagenie.ca:3478",
                 username: " codeprogrammer25112018@gmail.com",
                 credential: "CodeProgrammer25112018"
             }
@@ -144,16 +144,14 @@ function connectSocket() {
         let message = data.rtcMessage;
         console.log(message.candidate);
 
-        let candidate = new RTCIceCandidate(
-           message.candidate
-        );
+        let candidate = new RTCIceCandidate(message.candidate);
             console.log('remote ICE candidate: '+candidate);
         // peerConnection.addIceCandidate(candidate);
         // console.log("ICE candidate Added");
 
         if (peerConnection) {
             peerConnection.addIceCandidate(candidate);
-            console.log("ICE candidate Added");
+            console.log("ICE candidate Added: "+ candidate);
         } else {
             console.log("ICE candidate Pushed");
             iceCandidatesFromCaller.push(candidate);
