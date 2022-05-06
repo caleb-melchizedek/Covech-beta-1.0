@@ -126,7 +126,6 @@ align-items: center;
     right:5px; 
     display:flex; 
     flex-direction: column;  
-    align-items: center;
     z-index:5;
   }
 
@@ -139,6 +138,12 @@ align-items: center;
     padding:5px;
   }
 
+  .dataStatsContainer{
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+    justify-items
+  }
   div.graph-container {
     
   }

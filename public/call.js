@@ -315,7 +315,7 @@ function createConnectionAndAddStream(stream) {
 
 function createPeerConnection() {
     try {
-        peerConnection = new RTCPeerConnection(pcConfig);
+        peerConnection = new RTCPeerConnection(pcConfig);   
         // peerConnection = new RTCPeerConnection();
         peerConnection.onicecandidate = handleIceCandidate;
         peerConnection.ontrack = handleRemoteStreamAdded;
@@ -337,7 +337,7 @@ function toggleDataStats(){
     let graphs=document.querySelector(".dataStatsContainer")
     console.log(graphs.style)
     if(graphs.style.display==="none"){
-        graphs.style.display="block"
+        graphs.style.display="flex"
     }else{
         graphs.style.display="none"
     }
@@ -648,7 +648,13 @@ function updateBandwidthRestriction(sdp, bandwidth) {
               (now - lastResult.get(report.id).timestamp);
             const headerrate = 8 * (headerBytes - lastResult.get(report.id).headerBytesSent) /
               (now - lastResult.get(report.id).timestamp);
-  
+            
+              let bitCount = 0.0
+            //   bitCount = (bitrate + lastResult.get(report.id).bytesSent)/1000000
+              bitCount= ((bitrate + lastResult.get(report.id).bytesSent)/1000000).toFixed(2);
+              let bitCounter = document.querySelector('#bitCount')
+              bitCounter.innerHTML = `${bitCount}MB`
+
             // append to chart
             bitrateSeries.addPoint(now, bitrate);
             headerrateSeries.addPoint(now, headerrate);
