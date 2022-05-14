@@ -550,9 +550,9 @@ bitrateGraph.updateEndDate();
 headerrateSeries = new TimelineDataSeries();
 headerrateSeries.setColor('green');
 
-packetSeries = new TimelineDataSeries();
-packetGraph = new TimelineGraphView('packetGraph', 'packetCanvas');
-packetGraph.updateEndDate();
+// packetSeries = new TimelineDataSeries();
+// packetGraph = new TimelineGraphView('packetGraph', 'packetCanvas');
+// packetGraph.updateEndDate();
 
 
 // set and monitor bandwidth.
