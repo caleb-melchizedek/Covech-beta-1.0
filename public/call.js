@@ -664,7 +664,7 @@ window.setInterval(() => {
 
                     let bitCount = 0.0
                     //   bitCount = (bitrate + lastResult.get(report.id).bytesSent)/1000000
-                    bitCount = ((packets) / 1000000).toFixed(3);
+                    bitCount = ((bytes) / 1000000).toFixed(3);
                     let bitCounter = document.querySelector('#bitCount')
                     bitCounter.innerHTML = `${bitCount}MB`
                     console.log(bitCount)
@@ -674,11 +674,11 @@ window.setInterval(() => {
                     bitrateGraph.setDataSeries([bitrateSeries, headerrateSeries]);
                     bitrateGraph.updateEndDate();
 
-                    let packetrate = packets - lastResult.get(report.id).packetsSent;
-                    // calculate number of packets and append to chart
-                    packetSeries.addPoint(now, packetrate);
-                    packetGraph.setDataSeries([packetSeries]);
-                    packetGraph.updateEndDate();
+                    // let packetrate = packets - lastResult.get(report.id).packetsSent;
+                    // // calculate number of packets and append to chart
+                    // packetSeries.addPoint(now, packetrate);
+                    // packetGraph.setDataSeries([packetSeries]);
+                    // packetGraph.updateEndDate();
                 }
             }
         });
