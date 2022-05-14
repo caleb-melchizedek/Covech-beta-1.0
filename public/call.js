@@ -15,35 +15,36 @@ let peerConnection;
 let remoteStream;
 let localStream;
 
-let myName;
+
 
 const codecPreferences = document.querySelector('#codecPreferences');
 const bandwidthSelect = document.querySelector('#bandwidthSelect');
 const bandwidthSelector = document.querySelector('select#bandwidth');
 const dataStats = document.querySelector('#dataStats');
+const endCallBtn = document.querySelector('#endCall');
 
 const supportsSetCodecPreferences = window.RTCRtpTransceiver &&
-  'setCodecPreferences' in window.RTCRtpTransceiver.prototype;
+    'setCodecPreferences' in window.RTCRtpTransceiver.prototype;
 
-  const resoCOnstrs={
+const resoCOnstrs = {
     qvgaConstraints: {
-        video: {width: {exact: 320}, height: {exact: 240}}
+        video: { width: { exact: 320 }, height: { exact: 240 } }
     },
     vgaConstraints: {
-        video: {width: {exact: 640}, height: {exact: 480}}
+        video: { width: { exact: 640 }, height: { exact: 480 } }
     },
     hdConstraints: {
-        video: {width: {exact: 1280}, height: {exact: 720}}
+        video: { width: { exact: 1280 }, height: { exact: 720 } }
     },
-    fullHdConstraints :{
-        video: {width: {exact: 1920}, height: {exact: 1080}}
+    fullHdConstraints: {
+        video: { width: { exact: 1920 }, height: { exact: 1080 } }
     },
     televisionFourKConstraints: {
-        video: {width: {exact: 3840}, height: {exact: 2160}}
+        video: { width: { exact: 3840 }, height: { exact: 2160 } }
     }
 }
- 
-  
+
+
 
 let callInProgress = false;
 
@@ -58,8 +59,8 @@ function call() {
         .then(bool => {
             processCall(userToCall)
         })
-    bandwidthSelect.style.display="";
-    dataStats.style.display="flex";
+    bandwidthSelect.style.display = "";
+    dataStats.style.display = "flex";
 }
 
 //event from html
@@ -72,9 +73,9 @@ function answer() {
         })
 
     document.getElementById("answer").style.display = "none";
-    bandwidthSelect.style.display="";
-    dataStats.style.display="flex";
-    
+    bandwidthSelect.style.display = "";
+    dataStats.style.display = "flex";
+
 }
 
 let pcConfig = {
@@ -87,7 +88,7 @@ let pcConfig = {
             //     "credential": "somepassword"
             // },
             // {"url":'stun:stun.l.google.com:19302'},
-            {"urls": "stun:stun.numb.viagenie.ca"},
+            { "urls": "stun:stun.numb.viagenie.ca" },
             {
                 urls: "turn:numb.viagenie.ca?transport=tcp",
                 username: " codeprogrammer25112018@gmail.com",
@@ -111,7 +112,7 @@ function connectSocket() {
             name: myName
         }
     });
-    socket.on('updateUsersOnline',data=>{
+    socket.on('updateUsersOnline', data => {
         updateOnlineUsersList(data.usersOnline)
     })
     socket.on('newCall', data => {
@@ -146,13 +147,13 @@ function connectSocket() {
         console.log(message.candidate);
 
         let candidate = new RTCIceCandidate(message.candidate);
-            console.log('remote ICE candidate: '+candidate);
+        console.log('remote ICE candidate: ' + candidate);
         // peerConnection.addIceCandidate(candidate);
         // console.log("ICE candidate Added");
 
         if (peerConnection) {
             peerConnection.addIceCandidate(candidate);
-            console.log("ICE candidate Added: "+ candidate);
+            console.log("ICE candidate Added: " + candidate);
         } else {
             console.log("ICE candidate Pushed");
             iceCandidatesFromCaller.push(candidate);
@@ -161,10 +162,11 @@ function connectSocket() {
 
     })
 
-    socket.on("userDisconected",(data)=>{
+    socket.on("userDisconected", (data) => {
+        if(data.user==otherUser){
         alert("call ended");
-        reload();
-        // reLoad();
+            location.reload();
+        }
     })
 }
 
@@ -183,7 +185,7 @@ function sendCall(data) {
     // document.getElementById("profileImageCA").src = baseURL + otherUserProfile.image;
     document.getElementById("otherUserNameCA").innerHTML = otherUser;
     document.getElementById("calling").style.display = "block";
-    
+
 }
 
 /**
@@ -197,22 +199,10 @@ function sendCall(data) {
 
 
 //functions
-
-function reLoad() {
-    myName
-    document.getElementById("userName").style.display = "none";
-    document.getElementById("call").style.display = "block";
-
-    document.getElementById("nameHere").innerHTML = myName;
-    document.getElementById("userInfo").style.display = "block";
-
-    connectSocket();
-
-    document.getElementById("codecs").style.display = "";
-    showCodecsAvailable();
-    document.getElementById("onlineUserContainer").style.display = "";
-    
+function endCall() {
+    location.reload();
 }
+
 
 function login() {
     let userName = document.getElementById("userNameInput").value;
@@ -228,28 +218,28 @@ function login() {
     document.getElementById("codecs").style.display = "";
     showCodecsAvailable();
     document.getElementById("onlineUserContainer").style.display = "";
-    
+
 }
 
-function updateOnlineUsersList(list){
+function updateOnlineUsersList(list) {
     while (onlineUsersList.firstChild) {
         onlineUsersList.removeChild(onlineUsersList.firstChild);
-      }
-    console.log(list); 
+    }
+    console.log(list);
 
-    list.forEach(e=>{
+    list.forEach(e => {
         let userDiv = document.createElement('div');
         let pfImg = document.createElement('img');
-        pfImg.src='/profile.png';
-        
-        userDiv.setAttribute('class','onlineUserDiv');
-        userDiv.addEventListener('click',function(e){
-            document.querySelector('#callName').value= userDiv.innerText
+        pfImg.src = '/profile.png';
+
+        userDiv.setAttribute('class', 'onlineUserDiv');
+        userDiv.addEventListener('click', function (e) {
+            document.querySelector('#callName').value = userDiv.innerText
         })
 
         onlineUsersList.appendChild(userDiv);
-        userDiv.innerHTML=`${e}`;
-        userDiv.innerText=`${e}`;
+        userDiv.innerHTML = `${e}`;
+        userDiv.innerText = `${e}`;
         userDiv.appendChild(pfImg);
     });
 }
@@ -268,7 +258,7 @@ function beReady() {
         .catch(function (e) {
             alert('getUserMedia() error: ' + e.name);
         });
-        
+
 }
 
 
@@ -328,14 +318,15 @@ function processAccept() {
 function createConnectionAndAddStream(stream) {
     createPeerConnection();
     stream.getTracks().forEach(function (track) {
-    peerConnection.addTrack(track,stream)});
+        peerConnection.addTrack(track, stream)
+    });
 
     return true;
 }
 
 function createPeerConnection() {
     try {
-        peerConnection = new RTCPeerConnection(pcConfig);   
+        peerConnection = new RTCPeerConnection(pcConfig);
         // peerConnection = new RTCPeerConnection();
         peerConnection.onicecandidate = handleIceCandidate;
         peerConnection.ontrack = handleRemoteStreamAdded;
@@ -343,7 +334,7 @@ function createPeerConnection() {
         // peerConnection.addEventListener("icecandidate",(e)=> {handleIceCandidate(e)});
         // peerConnection.addEventListener("track",(e)=>{handleRemoteStreamAdded(e)} );
 
-        peerConnection.addEventListener=("removestream", (e)=>{handleRemoteStreamRemoved(e)});
+        peerConnection.addEventListener = ("removestream", (e) => { handleRemoteStreamRemoved(e) });
         console.log('Created RTCPeerConnnection');
         return;
     } catch (e) {
@@ -353,29 +344,29 @@ function createPeerConnection() {
     }
 }
 
-function toggleDataStats(){
-    let graphs=document.querySelector(".dataStatsContainer")
+function toggleDataStats() {
+    let graphs = document.querySelector(".dataStatsContainer")
     console.log(graphs.style)
-    if(graphs.style.display==="none"){
-        graphs.style.display="flex"
-    }else{
-        graphs.style.display="none"
+    if (graphs.style.display === "none") {
+        graphs.style.display = "flex"
+    } else {
+        graphs.style.display = "none"
     }
 }
-function showCodecsAvailable(){
+function showCodecsAvailable() {
     if (supportsSetCodecPreferences) {
-    const {codecs} = RTCRtpSender.getCapabilities('video');
-    codecs.forEach(codec => {
-      if (['video/red', 'video/ulpfec', 'video/rtx'].includes(codec.mimeType)) {
-        return;
-      }
-      const option = document.createElement('option');
-      option.value = (codec.mimeType + ' ' + (codec.sdpFmtpLine || '')).trim();
-      option.innerText = option.value;
-      codecPreferences.appendChild(option);
-    });
-    codecPreferences.disabled = false;
-  }
+        const { codecs } = RTCRtpSender.getCapabilities('video');
+        codecs.forEach(codec => {
+            if (['video/red', 'video/ulpfec', 'video/rtx'].includes(codec.mimeType)) {
+                return;
+            }
+            const option = document.createElement('option');
+            option.value = (codec.mimeType + ' ' + (codec.sdpFmtpLine || '')).trim();
+            option.innerText = option.value;
+            codecPreferences.appendChild(option);
+        });
+        codecPreferences.disabled = false;
+    }
 }
 
 
@@ -388,47 +379,48 @@ function showCodecsAvailable(){
  */
 
 
-function changeResolution(reso){
+function changeResolution(reso) {
     let cnstrn
-    if(reso=="qvga"){
+    if (reso == "qvga") {
         console.log(qvgaConstraints);
-        cnstrn=qvgaConstraints
+        cnstrn = qvgaConstraints
     }
-    else if(reso=="vga"){
+    else if (reso == "vga") {
         console.log(vgaConstraints);
-        cnstrn=vgaConstraints
+        cnstrn = vgaConstraints
 
     }
-    else if(reso=="hd"){
+    else if (reso == "hd") {
         console.log(hdConstraints);
-        cnstrn=hdConstraints
+        cnstrn = hdConstraints
     }
-    else if(reso=="fhd"){
+    else if (reso == "fhd") {
         console.log(fullHdConstraints);
-        cnstrn=fullHdConstraints
+        cnstrn = fullHdConstraints
 
     }
-    else if(reso=="4k"){
+    else if (reso == "4k") {
         console.log(televisionFourKConstraints);
-        cnstrn=televisionFourKConstraints
+        cnstrn = televisionFourKConstraints
 
     }
     navigator.mediaDevices.getUserMedia(cnstrn)
-    .then(stream => {
+        .then(stream => {
 
-        localStream = stream;
-        localVideo.srcObject = stream;
+            localStream = stream;
+            localVideo.srcObject = stream;
 
-        stream.getTracks().forEach(function (track) {
-        peerConnection.addTrack(track,stream)});
+            stream.getTracks().forEach(function (track) {
+                peerConnection.addTrack(track, stream)
+            });
 
-        console.log(peerConnection)
-        
-        
-    })
-    .catch(function (e) {
-        alert('getUserMedia() error: ' + e.name + e.message);
-    });
+            console.log(peerConnection)
+
+
+        })
+        .catch(function (e) {
+            alert('getUserMedia() error: ' + e.name + e.message);
+        });
 }
 
 
@@ -441,7 +433,7 @@ function answerCall(data) {
     //to answer a call
     socket.emit("answerCall", data);
     callProgress();
-    
+
 }
 
 
@@ -450,7 +442,7 @@ function answerCall(data) {
 
 
 function handleIceCandidate(event) {
-// example reference code
+    // example reference code
     // if (e.candidate) {
     //     const payload = {
     //         target: otherUser.current,
@@ -461,7 +453,7 @@ function handleIceCandidate(event) {
 
 
     if (event.candidate) {
-        console.log("Local ICE candidate",event.candidate);
+        console.log("Local ICE candidate", event.candidate);
         const payload = {
             user: otherUser,
             rtcMessage: {
@@ -494,7 +486,7 @@ function handleRemoteStreamAdded(event) {
     //     }
     //   ;
 
-    
+
 }
 
 function handleRemoteStreamRemoved(event) {
@@ -528,12 +520,13 @@ function callProgress() {
     document.getElementById("videos").style.display = "block";
     document.getElementById("otherUserNameC").innerHTML = otherUser;
     document.getElementById("inCall").style.display = "block";
-    
+    endCallBtn.style.display="block"
+
     callInProgress = true;
     codecPreferences.disabled = true;
 }
 
-    
+
 // bandwidth Regulator code
 
 let bitrateGraph;
@@ -567,54 +560,54 @@ packetGraph.updateEndDate();
 bandwidthSelector.onchange = () => {
     bandwidthSelector.disabled = true;
     const bandwidth = bandwidthSelector.options[bandwidthSelector.selectedIndex].value;
-  
+
     // In Chrome, use RTCRtpSender.setParameters to change bandwidth without
     // (local) renegotiation. Note that this will be within the envelope of
     // the initial maximum bandwidth negotiated via SDP.
     if ((adapter.browserDetails.browser === 'chrome' ||
-         adapter.browserDetails.browser === 'safari' ||
-         adapter.browserDetails.browser === 'edge' ||
-         (adapter.browserDetails.browser === 'firefox' &&
-          adapter.browserDetails.version >= 64)) &&
+        adapter.browserDetails.browser === 'safari' ||
+        adapter.browserDetails.browser === 'edge' ||
+        (adapter.browserDetails.browser === 'firefox' &&
+            adapter.browserDetails.version >= 64)) &&
         'RTCRtpSender' in window &&
         'setParameters' in window.RTCRtpSender.prototype) {
-      const sender = peerConnection.getSenders()[0];
-      const parameters = sender.getParameters();
-      if (!parameters.encodings) {
-        parameters.encodings = [{}];
-      }
-      if (bandwidth === 'unlimited') {
-        delete parameters.encodings[0].maxBitrate;
-      } else {
-        parameters.encodings[0].maxBitrate = bandwidth * 1000;
-      }
-      sender.setParameters(parameters)
-          .then(() => {
-            bandwidthSelector.disabled = false;
-          })
-          .catch(e => console.error(e));
-      return;
+        const sender = peerConnection.getSenders()[0];
+        const parameters = sender.getParameters();
+        if (!parameters.encodings) {
+            parameters.encodings = [{}];
+        }
+        if (bandwidth === 'unlimited') {
+            delete parameters.encodings[0].maxBitrate;
+        } else {
+            parameters.encodings[0].maxBitrate = bandwidth * 1000;
+        }
+        sender.setParameters(parameters)
+            .then(() => {
+                bandwidthSelector.disabled = false;
+            })
+            .catch(e => console.error(e));
+        return;
     }
     // Fallback to the SDP munging with local renegotiation way of limiting
     // the bandwidth.
     peerConnection.createOffer()
         .then(offer => peerConnection.setLocalDescription(offer))
         .then(() => {
-          const desc = {
-            type: peerConnection.remoteDescription.type,
-            sdp: bandwidth === 'unlimited' ?
-            removeBandwidthRestriction(peerConnection.remoteDescription.sdp) :
-            updateBandwidthRestriction(peerConnection.remoteDescription.sdp, bandwidth)
-          };
-          console.log('Applying bandwidth restriction to setRemoteDescription:\n' +
-          desc.sdp);
-          return peerConnection.setRemoteDescription(desc);
+            const desc = {
+                type: peerConnection.remoteDescription.type,
+                sdp: bandwidth === 'unlimited' ?
+                    removeBandwidthRestriction(peerConnection.remoteDescription.sdp) :
+                    updateBandwidthRestriction(peerConnection.remoteDescription.sdp, bandwidth)
+            };
+            console.log('Applying bandwidth restriction to setRemoteDescription:\n' +
+                desc.sdp);
+            return peerConnection.setRemoteDescription(desc);
         })
         .then(() => {
-          bandwidthSelector.disabled = false;
+            bandwidthSelector.disabled = false;
         })
         .catch(onSetSessionDescriptionError);
-  };
+};
 
 
 
@@ -623,79 +616,79 @@ bandwidthSelector.onchange = () => {
 function updateBandwidthRestriction(sdp, bandwidth) {
     let modifier = 'AS';
     if (adapter.browserDetails.browser === 'firefox') {
-      bandwidth = (bandwidth >>> 0) * 1000;
-      modifier = 'TIAS';
+        bandwidth = (bandwidth >>> 0) * 1000;
+        modifier = 'TIAS';
     }
     if (sdp.indexOf('b=' + modifier + ':') === -1) {
-      // insert b= after c= line.
-      sdp = sdp.replace(/c=IN (.*)\r\n/, 'c=IN $1\r\nb=' + modifier + ':' + bandwidth + '\r\n');
+        // insert b= after c= line.
+        sdp = sdp.replace(/c=IN (.*)\r\n/, 'c=IN $1\r\nb=' + modifier + ':' + bandwidth + '\r\n');
     } else {
-      sdp = sdp.replace(new RegExp('b=' + modifier + ':.*\r\n'), 'b=' + modifier + ':' + bandwidth + '\r\n');
+        sdp = sdp.replace(new RegExp('b=' + modifier + ':.*\r\n'), 'b=' + modifier + ':' + bandwidth + '\r\n');
     }
     return sdp;
-  }
-  
-  function removeBandwidthRestriction(sdp) {
+}
+
+function removeBandwidthRestriction(sdp) {
     return sdp.replace(/b=AS:.*\r\n/, '').replace(/b=TIAS:.*\r\n/, '');
-  }
-  
-  // query getStats every second
-  window.setInterval(() => {
+}
+
+// query getStats every second
+window.setInterval(() => {
     if (!peerConnection) {
-      return;
+        return;
     }
     const sender = peerConnection.getSenders()[0];
     if (!sender) {
-      return;
+        return;
     }
     sender.getStats().then(res => {
-      res.forEach(report => {
-        let bytes;
-        let headerBytes;
-        let packets;
-        if (report.type === 'outbound-rtp') {
-          if (report.isRemote) {
-            return;
-          }
-          const now = report.timestamp;
-          bytes = report.bytesSent;
-          headerBytes = report.headerBytesSent;
-  
-          packets = report.packetsSent;
-          if (lastResult && lastResult.has(report.id)) {
-            // calculate bitrate
-            const bitrate = 8 * (bytes - lastResult.get(report.id).bytesSent) /
-              (now - lastResult.get(report.id).timestamp);
-            const headerrate = 8 * (headerBytes - lastResult.get(report.id).headerBytesSent) /
-              (now - lastResult.get(report.id).timestamp);
-            
-              let bitCount = 0.0
-            //   bitCount = (bitrate + lastResult.get(report.id).bytesSent)/1000000
-              bitCount= ((bitrate + lastResult.get(report.id).bytesSent)/1000000).toFixed(2);
-              let bitCounter = document.querySelector('#bitCount')
-              bitCounter.innerHTML = `${bitCount}MB`
+        res.forEach(report => {
+            let bytes;
+            let headerBytes;
+            let packets;
+            if (report.type === 'outbound-rtp') {
+                if (report.isRemote) {
+                    return;
+                }
+                const now = report.timestamp;
+                bytes = report.bytesSent;
+                headerBytes = report.headerBytesSent;
 
-            // append to chart
-            bitrateSeries.addPoint(now, bitrate);
-            headerrateSeries.addPoint(now, headerrate);
-            bitrateGraph.setDataSeries([bitrateSeries, headerrateSeries]);
-            bitrateGraph.updateEndDate();
-            
-            let packetrate =packets - lastResult.get(report.id).packetsSent; 
-            // calculate number of packets and append to chart
-            packetSeries.addPoint(now, packetrate);
-            packetGraph.setDataSeries([packetSeries]);
-            packetGraph.updateEndDate();
-          }
-        }
-      });
-      lastResult = res;
+                packets = report.packetsSent;
+                if (lastResult && lastResult.has(report.id)) {
+                    // calculate bitrate
+                    const bitrate = 8 * (bytes - lastResult.get(report.id).bytesSent) /
+                        (now - lastResult.get(report.id).timestamp);
+                    const headerrate = 8 * (headerBytes - lastResult.get(report.id).headerBytesSent) /
+                        (now - lastResult.get(report.id).timestamp);
+
+                    let bitCount = 0.0
+                    //   bitCount = (bitrate + lastResult.get(report.id).bytesSent)/1000000
+                    bitCount = ((packets) / 1000000).toFixed(3);
+                    let bitCounter = document.querySelector('#bitCount')
+                    bitCounter.innerHTML = `${bitCount}MB`
+                    console.log(bitCount)
+                    // append to chart
+                    bitrateSeries.addPoint(now, bitrate);
+                    headerrateSeries.addPoint(now, headerrate);
+                    bitrateGraph.setDataSeries([bitrateSeries, headerrateSeries]);
+                    bitrateGraph.updateEndDate();
+
+                    let packetrate = packets - lastResult.get(report.id).packetsSent;
+                    // calculate number of packets and append to chart
+                    packetSeries.addPoint(now, packetrate);
+                    packetGraph.setDataSeries([packetSeries]);
+                    packetGraph.updateEndDate();
+                }
+            }
+        });
+        lastResult = res;
     });
-  }, 1000);
-  
-  // Return a number between 0 and maxValue based on the input number,
-  // so that the output changes smoothly up and down.
-  function triangle(number, maxValue) {
+}, 1000);
+
+// Return a number between 0 and maxValue based on the input number,
+// so that the output changes smoothly up and down.
+function triangle(number, maxValue) {
     const modulus = (maxValue + 1) * 2;
     return Math.abs(number % modulus - maxValue);
-  }
+}
