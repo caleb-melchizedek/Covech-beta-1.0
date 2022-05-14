@@ -15,6 +15,8 @@ let peerConnection;
 let remoteStream;
 let localStream;
 
+let myName;
+
 const codecPreferences = document.querySelector('#codecPreferences');
 const bandwidthSelect = document.querySelector('#bandwidthSelect');
 const bandwidthSelector = document.querySelector('select#bandwidth');
@@ -160,7 +162,9 @@ function connectSocket() {
     })
 
     socket.on("userDisconected",(data)=>{
-
+        alert("call ended");
+        reload();
+        // reLoad();
     })
 }
 
@@ -193,6 +197,22 @@ function sendCall(data) {
 
 
 //functions
+
+function reLoad() {
+    myName
+    document.getElementById("userName").style.display = "none";
+    document.getElementById("call").style.display = "block";
+
+    document.getElementById("nameHere").innerHTML = myName;
+    document.getElementById("userInfo").style.display = "block";
+
+    connectSocket();
+
+    document.getElementById("codecs").style.display = "";
+    showCodecsAvailable();
+    document.getElementById("onlineUserContainer").style.display = "";
+    
+}
 
 function login() {
     let userName = document.getElementById("userNameInput").value;
