@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "name": "covech",
+  "name": "finalyearproject",
   "builds": [
     {
       "src": "index.js",
