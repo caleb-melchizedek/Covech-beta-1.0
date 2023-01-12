@@ -20,7 +20,7 @@ module.exports.initIO = (httpServer) => {
         console.log(usersOnline);
         IO.emit('updateUsersOnline',{usersOnline})
         socket.join(socket.user);
-
+ 
         socket.on('call', (data) => {
             let callee = data.name;
             let rtcMessage = data.rtcMessage;
