@@ -1,216 +1,285 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" href="/logo.png" type="image/png" />
     <title>Video Call</title>
-    <link rel="stylesheet" href="call.css">
+    <link rel="stylesheet" href="call.css" />
 
-    <script  defer src='/socket.io/socket.io.js'></script>
-    <script defer src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+    <script defer src="/socket.io/socket.io.js"></script>
+    <script
+      defer
+      src="https://webrtc.github.io/adapter/adapter-latest.js"
+    ></script>
     <script defer src="jsModules/graph.js"></script>
     <script defer src="jsModules/ga.js"></script>
 
-    <style>
-       
-    </style>
+    <style></style>
 
     <script>
-        let myName;
+      let myName;
     </script>
-</head>
+  </head>
 
-<body>
+  <body>
     <div id="onlineUserContainer">
-        <h3>Online Users</h3>
-        <div id="onlineUsers"></div>
+      <h3>Online Users</h3>
+      <div id="onlineUsers"></div>
     </div>
-    
+
     <div id="body">
-        <div>
-            <!-- to input username and login -->
-            <div id="userName">
-                <div style="display: flex; flex-direction: column; align-items: center; width: 300px;">
-                    <div style="text-align:center;font-size: x-large;">
-                        <h1 style="margin:0">Covech</h1>
-                    </div>
-                    <small style="color: white; padding-bottom:20px; padding-top:5px"> chat with random people online</small>
-                    <input placeholder="What should we call you?"
-                        style="text-align:center; height: 50px; font-size: xx-large;" type="text" name=""
-                        id="userNameInput">
-                    <div style="height: 5px;"></div>
-                    <button onclick="login()" class="actionButton">Login</button>
-                </div>
+      <div>
+        <!-- to input username and login -->
+        <div id="userName">
+          <div
+            style="
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              width: 300px;
+            "
+          >
+            <div style="text-align: center; font-size: x-large">
+              <h1 style="margin: 0">Covech</h1>
             </div>
-
-            <!-- to display current login user information  -->
-            <div id="userInfo" >
-                <div style="display: flex; flex-direction: column; align-items: center; width: 300px;">
-                    <h1>Hello, <span id="nameHere"></span></h1>
-                </div>
-
-            </div>
-
-            <!-- to make a call with name -->
-            <div id="call">
-                <div class="dialWrapper">
-                    <input placeholder="Whom to call?" style="text-align:center; height: 50px; font-size: xx-large;"
-                        type="text" name="callName" id="callName">
-                    <div class="dialNumpadHWrapper">
-                        <div class="dialNumber">
-                        </div>
-                        <div class="dialNumber">
-                            <button class="dialActionButton" onclick="call()">Call</button>
-                        </div>
-                        <div class="dialNumber">
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-
-            <!-- to show incommming call and accept -->
-            <div id="answer">
-                <div class="incomingWrapper">
-                    <div class="itemWrapper">
-                        <h2>Incomming Call</h2>
-                    </div>
-                    <div class="itemWrapper">
-                        <img id="profileImageA" style="padding: 30px; width: 140px; height: 140px;"
-                            src="/profile.png" alt="">
-                    </div>
-                    <div class="itemWrapper">
-                        <h2 style="line-height: 0px;"><span id="callerName"></span></h2>
-                    </div>
-                    <div class="itemWrapper" style="display: flex; flex-direction: row; margin-bottom: 20px;">
-                        <button class="actionButton" onclick="answer()">Answer</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- to show outgoing call -->
-            <div id="calling">
-                <div class="incomingWrapper">
-                    <div class="itemWrapper">
-                        <h2>Calling</h2>
-                    </div>
-                    <div class="itemWrapper">
-                        <img id="profileImageCA" style="padding: 30px; width: 140px; height: 140px;"
-                            src="/profile.png" alt="">
-                    </div>
-                    <div class="itemWrapper">
-                        <h3 style="line-height: 0px;"><span id="otherUserNameCA"></span></h3>
-                    </div>
-                </div>
-            </div>
-
-            <!-- to show call in progress call -->
-            <div id="inCall">
-                <div class="">
-                    <h6>On Call With <span id="otherUserNameC"></span></h6>
-                    <!-- <h6 style="line-height: 0px;"><span id="otherUserNameC"></span></h6> -->
-                </div>
-            </div>
-
-            <!-- to show local and remote video -->
-            <div id="videos" style="width: 500px; position:relative;">
-                <div id="remoteVideoDiv">
-                    <video style="width: 500px;" id="remoteVideo" autoplay playsinline></video>
-                </div>
-                <div style="position:absolute; bottom:0; right:0;border:1px white solid;">
-                    <video width="100px" id="localVideo" autoplay muted playsinline></video>
-                </div>
-            </div>
-            <button id="endCall" onclick="endCall()">
-                End call
-            </button>
+            <small style="color: white; padding-bottom: 20px; padding-top: 5px">
+              chat with random people online</small
+            >
+            <input
+              placeholder="What should we call you?"
+              style="text-align: center; height: 50px; font-size: xx-large"
+              type="text"
+              name=""
+              id="userNameInput"
+            />
+            <div style="height: 5px"></div>
+            <button onclick="login()" class="actionButton">Login</button>
+          </div>
         </div>
-        <div id="controls">
-            <div id="codecs">
-                <div  style="display:flex; flex-direction: column;align-items: center;">
-                    <h3>Choose your preffered Codec before making call:</h3>
-                    <span>Make your selection before making your call</span>
-                    <select id="codecPreferences" >
-                        <option selected value="">Default</option>
-                    </select>
-                    <div id="actualCodec"></div>
-                </div>
+
+        <!-- to display current login user information  -->
+        <div id="userInfo">
+          <div
+            style="
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              width: 300px;
+            "
+          >
+            <h1>Hello, <span id="nameHere"></span></h1>
+          </div>
+        </div>
+
+        <!-- to make a call with name -->
+        <div id="call">
+          <div class="dialWrapper">
+            <input
+              placeholder="Whom to call?"
+              style="text-align: center; height: 50px; font-size: xx-large"
+              type="text"
+              name="callName"
+              id="callName"
+            />
+            <div class="dialNumpadHWrapper">
+              <div class="dialNumber"></div>
+              <div class="dialNumber">
+                <button class="dialActionButton" onclick="call()">Call</button>
+              </div>
+              <div class="dialNumber"></div>
             </div>
-            
-            <div id="bandwidthSelect" style="display:flex; color: white; flex-direction: column;align-items: center;">
+          </div>
+        </div>
 
-                <label>Bandwidth:</label>
-                <select id="bandwidth">
-                    <option value="unlimited" selected>unspecified</option>
-                    <option value="2000">2000</option>
-                    <option value="1080">1080</option>
-                    <option value="720">720</option>
-                    <option value="480">480</option>
-                    <option value="360">360</option>
-                    <option value="240">240</option>
-                </select>
-                kbps
+        <!-- to show incommming call and accept -->
+        <div id="answer">
+          <div class="incomingWrapper">
+            <div class="itemWrapper">
+              <h2>Incomming Call</h2>
+            </div>
+            <div class="itemWrapper">
+              <img
+                id="profileImageA"
+                style="padding: 30px; width: 140px; height: 140px"
+                src="/profile.png"
+                alt=""
+              />
+            </div>
+            <div class="itemWrapper">
+              <h2 style="line-height: 0px"><span id="callerName"></span></h2>
+            </div>
+            <div
+              class="itemWrapper"
+              style="display: flex; flex-direction: row; margin-bottom: 20px"
+            >
+              <button class="actionButton" onclick="answer()">Answer</button>
+            </div>
+          </div>
+        </div>
 
-                <div id="dataStats" >
-                    <button class="showDataStats"  onclick="toggleDataStats()">Size of Data Sent</button>
-                    <div class="dataStatsContainer">
-                        <div id="bitCount" style=""></div>
-                        <div class="graph-container" style="margin:4px;" id="bitrateGraph">
-                            <div>Bitrate</div>
-                            <canvas id="bitrateCanvas"></canvas>
-                        </div>
-                        <!-- <div class="graph-container" style="margin:4px;" id="packetGraph">
+        <!-- to show outgoing call -->
+        <div id="calling">
+          <div class="incomingWrapper">
+            <div class="itemWrapper">
+              <h2>Calling</h2>
+            </div>
+            <div class="itemWrapper">
+              <img
+                id="profileImageCA"
+                style="padding: 30px; width: 140px; height: 140px"
+                src="/profile.png"
+                alt=""
+              />
+            </div>
+            <div class="itemWrapper">
+              <h3 style="line-height: 0px">
+                <span id="otherUserNameCA"></span>
+              </h3>
+            </div>
+          </div>
+        </div>
+
+        <!-- to show call in progress call -->
+        <div id="inCall">
+          <div class="">
+            <h6>On Call With <span id="otherUserNameC"></span></h6>
+            <!-- <h6 style="line-height: 0px;"><span id="otherUserNameC"></span></h6> -->
+          </div>
+        </div>
+
+        <!-- to show local and remote video -->
+        <div id="videos" style="width: 500px; position: relative">
+          <div id="remoteVideoDiv">
+            <video
+              style="width: 500px"
+              id="remoteVideo"
+              autoplay
+              playsinline
+            ></video>
+          </div>
+          <div
+            style="
+              position: absolute;
+              bottom: 0;
+              right: 0;
+              border: 1px white solid;
+            "
+          >
+            <video
+              width="100px"
+              id="localVideo"
+              autoplay
+              muted
+              playsinline
+            ></video>
+          </div>
+        </div>
+        <button id="endCall" onclick="endCall()">End call</button>
+      </div>
+      <div id="controls">
+        <div id="codecs">
+          <div
+            style="display: flex; flex-direction: column; align-items: center"
+          >
+            <h3>Choose your preffered Codec before making call:</h3>
+            <span>Make your selection before making your call</span>
+            <select id="codecPreferences">
+              <option selected value="">Default</option>
+            </select>
+            <div id="actualCodec"></div>
+          </div>
+        </div>
+
+        <div
+          id="bandwidthSelect"
+          style="
+            display: flex;
+            color: white;
+            flex-direction: column;
+            align-items: center;
+          "
+        >
+          <label>Bandwidth:</label>
+          <select id="bandwidth">
+            <option value="unlimited" selected>unspecified</option>
+            <option value="2000">2000</option>
+            <option value="1080">1080</option>
+            <option value="720">720</option>
+            <option value="480">480</option>
+            <option value="360">360</option>
+            <option value="240">240</option>
+          </select>
+          kbps
+
+          <div id="dataStats">
+            <button class="showDataStats" onclick="toggleDataStats()">
+              Size of Data Sent
+            </button>
+            <div class="dataStatsContainer">
+              <div id="bitCount" style=""></div>
+              <div
+                class="graph-container"
+                style="margin: 4px"
+                id="bitrateGraph"
+              >
+                <div>Bitrate</div>
+                <canvas id="bitrateCanvas"></canvas>
+              </div>
+              <!-- <div class="graph-container" style="margin:4px;" id="packetGraph">
                             <div>Packets sent per second</div>
                             <canvas id="packetCanvas"></canvas>
                         </div> -->
-                    </div>
-                </div>
             </div>
+          </div>
         </div>
+      </div>
 
-        
-        <div id="resolutions" style="display:none;">
-            <div style="display:flex; flex-direction: column;align-items: center;">
-                <p>Select a resolution of choice</p>
-                <div id="resolution_buttons">
-                    <button id="qvga"onclick="changeResolution('qvga')">QVGA (320x240)</button>
-                    <button id="vga"onclick="changeResolution('vga')">VGA (640x480)</button>
-                    <button id="hd"onclick="changeResolution('hd')">HD (1280x720)</button>
-                    <button id="full-hd"onclick="changeResolution('fhd')">Full HD (1920x1080)</button>
-                    <button id="televisionFourK"onclick="changeResolution('4k')">Television 4K (3840x2160)</button>
-                </div>
-            </div>
+      <div id="resolutions" style="display: none">
+        <div style="display: flex; flex-direction: column; align-items: center">
+          <p>Select a resolution of choice</p>
+          <div id="resolution_buttons">
+            <button id="qvga" onclick="changeResolution('qvga')">
+              QVGA (320x240)
+            </button>
+            <button id="vga" onclick="changeResolution('vga')">
+              VGA (640x480)
+            </button>
+            <button id="hd" onclick="changeResolution('hd')">
+              HD (1280x720)
+            </button>
+            <button id="full-hd" onclick="changeResolution('fhd')">
+              Full HD (1920x1080)
+            </button>
+            <button id="televisionFourK" onclick="changeResolution('4k')">
+              Television 4K (3840x2160)
+            </button>
+          </div>
         </div>
+      </div>
     </div>
-   
+
     <div>
-        <div style="display: flex; flex-direction: column;">
-            <!-- <a href="https://www.bloggernepal.com/2021/05/setup-stun-and-turn-server-on-ubuntu.html">
+      <div style="display: flex; flex-direction: column">
+        <!-- <a href="https://www.bloggernepal.com/2021/05/setup-stun-and-turn-server-on-ubuntu.html">
                 Setup STUN and TURN server on Ubuntu
             </a> -->
-        </div>
+      </div>
     </div>
-
 
     <script defer src="call.js" async></script>
     <script>
-        
-        document.getElementById("call").style.display = "none";
-        document.getElementById("userInfo").style.display = "none";
-        document.getElementById("answer").style.display = "none";
-        document.getElementById("inCall").style.display = "none";
-        document.getElementById("calling").style.display = "none";
-        document.getElementById("videos").style.display = "none";
-        document.getElementById("codecs").style.display = "none";
-        document.getElementById("bandwidthSelect").style.display = "none";
-        document.getElementById("dataStats").style.display = "none";
-        document.getElementById("onlineUserContainer").style.display = "none";
-        document.querySelector(".dataStatsContainer").style.display = "none";
+      document.getElementById("call").style.display = "none";
+      document.getElementById("userInfo").style.display = "none";
+      document.getElementById("answer").style.display = "none";
+      document.getElementById("inCall").style.display = "none";
+      document.getElementById("calling").style.display = "none";
+      document.getElementById("videos").style.display = "none";
+      document.getElementById("codecs").style.display = "none";
+      document.getElementById("bandwidthSelect").style.display = "none";
+      document.getElementById("dataStats").style.display = "none";
+      document.getElementById("onlineUserContainer").style.display = "none";
+      document.querySelector(".dataStatsContainer").style.display = "none";
     </script>
-
-
-</body>
-
+  </body>
 </html>
