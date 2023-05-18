@@ -1,89 +1,213 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Welcome to Firebase Hosting</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="/assets/logo.png" type="image/png" />
+    <title>Video Call</title>
+    <link rel="stylesheet" href="/assets/call.css" />
 
-    <!-- update the version number as needed -->
-    <script defer src="/__/firebase/9.22.0/firebase-app-compat.js"></script>
-    <!-- include only the Firebase features as you need -->
-    <script defer src="/__/firebase/9.22.0/firebase-auth-compat.js"></script>
-    <script defer src="/__/firebase/9.22.0/firebase-database-compat.js"></script>
-    <script defer src="/__/firebase/9.22.0/firebase-firestore-compat.js"></script>
-    <script defer src="/__/firebase/9.22.0/firebase-functions-compat.js"></script>
-    <script defer src="/__/firebase/9.22.0/firebase-messaging-compat.js"></script>
-    <script defer src="/__/firebase/9.22.0/firebase-storage-compat.js"></script>
-    <script defer src="/__/firebase/9.22.0/firebase-analytics-compat.js"></script>
-    <script defer src="/__/firebase/9.22.0/firebase-remote-config-compat.js"></script>
-    <script defer src="/__/firebase/9.22.0/firebase-performance-compat.js"></script>
-    <!-- 
-      initialize the SDK after all desired features are loaded, set useEmulator to false
-      to avoid connecting the SDK to running emulators.
-    -->
-    <script defer src="/__/firebase/init.js?useEmulator=true"></script>
-
-    <style media="screen">
-      body { background: #ECEFF1; color: rgba(0,0,0,0.87); font-family: Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; }
-      #message { background: white; max-width: 360px; margin: 100px auto 16px; padding: 32px 24px; border-radius: 3px; }
-      #message h2 { color: #ffa100; font-weight: bold; font-size: 16px; margin: 0 0 8px; }
-      #message h1 { font-size: 22px; font-weight: 300; color: rgba(0,0,0,0.6); margin: 0 0 16px;}
-      #message p { line-height: 140%; margin: 16px 0 24px; font-size: 14px; }
-      #message a { display: block; text-align: center; background: #039be5; text-transform: uppercase; text-decoration: none; color: white; padding: 16px; border-radius: 4px; }
-      #message, #message a { box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24); }
-      #load { color: rgba(0,0,0,0.4); text-align: center; font-size: 13px; }
-      @media (max-width: 600px) {
-        body, #message { margin-top: 0; background: white; box-shadow: none; }
-        body { border-top: 16px solid #ffa100; }
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+      body {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding-top: 24px;
+        min-height: 90vh;
       }
     </style>
-  </head>
-  <body>
-    <div id="message">
-      <h2>Welcome</h2>
-      <h1>Firebase Hosting Setup Complete</h1>
-      <p>You're seeing this because you've successfully setup Firebase Hosting. Now it's time to go build something extraordinary!</p>
-      <a target="_blank" href="https://firebase.google.com/docs/hosting/">Open Hosting Documentation</a>
-    </div>
-    <p id="load">Firebase SDK Loading&hellip;</p>
 
     <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        const loadEl = document.querySelector('#load');
-        // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
-        // // The Firebase SDK is initialized and available here!
-        //
-        // firebase.auth().onAuthStateChanged(user => { });
-        // firebase.database().ref('/path/to/ref').on('value', snapshot => { });
-        // firebase.firestore().doc('/foo/bar').get().then(() => { });
-        // firebase.functions().httpsCallable('yourFunction')().then(() => { });
-        // firebase.messaging().requestPermission().then(() => { });
-        // firebase.storage().ref('/path/to/ref').getDownloadURL().then(() => { });
-        // firebase.analytics(); // call to activate
-        // firebase.analytics().logEvent('tutorial_completed');
-        // firebase.performance(); // call to activate
-        //
-        // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
+      let myName;
+    </script>
+  </head>
 
-        try {
-          let app = firebase.app();
-          let features = [
-            'auth', 
-            'database', 
-            'firestore',
-            'functions',
-            'messaging', 
-            'storage', 
-            'analytics', 
-            'remoteConfig',
-            'performance',
-          ].filter(feature => typeof app[feature] === 'function');
-          loadEl.textContent = `Firebase SDK loaded with ${features.join(', ')}`;
-        } catch (e) {
-          console.error(e);
-          loadEl.textContent = 'Error loading the Firebase SDK, check the console.';
-        }
-      });
+  <body>
+    <div>
+      <div>
+        <!-- to input username and login -->
+        <div id="userName">
+          <div
+            style="
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              width: 300px;
+            "
+          >
+            <input
+              placeholder="What should we call you?"
+              style="text-align: center; height: 50px; font-size: xx-large"
+              type="text"
+              name=""
+              id="userNameInput"
+            />
+            <div style="height: 5px"></div>
+            <button onclick="login()" class="actionButton">Login</button>
+          </div>
+        </div>
+
+        <!-- to display current login user information  -->
+        <div id="userInfo">
+          <div
+            style="
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              width: 300px;
+            "
+          >
+            <h1>Hello, <span id="nameHere"></span></h1>
+          </div>
+        </div>
+
+        <!-- to make a call with name -->
+        <div id="call">
+          <div class="dialWrapper">
+            <input
+              placeholder="Whom to call?"
+              style="text-align: center; height: 50px; font-size: xx-large"
+              type="text"
+              name="callName"
+              id="callName"
+            />
+            <div class="dialNumpadHWrapper">
+              <div class="dialNumber"></div>
+              <div class="dialNumber">
+                <button class="dialActionButton" onclick="call()">Call</button>
+              </div>
+              <div class="dialNumber"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- to show incommming call and accept -->
+        <div id="answer">
+          <div class="incomingWrapper">
+            <div class="itemWrapper">
+              <h2>Incomming Call</h2>
+            </div>
+            <div class="itemWrapper">
+              <img
+                id="profileImageA"
+                style="padding: 30px; width: 140px; height: 140px"
+                src="/assets/profile.png"
+                alt=""
+              />
+            </div>
+            <div class="itemWrapper">
+              <h2 style="line-height: 0px"><span id="callerName"></span></h2>
+            </div>
+            <div
+              class="itemWrapper"
+              style="display: flex; flex-direction: row; margin-bottom: 20px"
+            >
+              <button class="actionButton" onclick="answer()">Answer</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- to show outgoing call -->
+        <div id="calling">
+          <div class="incomingWrapper">
+            <div class="itemWrapper">
+              <h2>Calling</h2>
+            </div>
+            <div class="itemWrapper">
+              <img
+                id="profileImageCA"
+                style="padding: 30px; width: 140px; height: 140px"
+                src="/profile.png"
+                alt=""
+              />
+            </div>
+            <div class="itemWrapper">
+              <h3 style="line-height: 0px">
+                <span id="otherUserNameCA"></span>
+              </h3>
+            </div>
+          </div>
+        </div>
+
+        <!-- to show call in progress call -->
+        <div id="inCall">
+          <div class="incomingWrapper">
+            <div class="itemWrapper">
+              <h3>On Call With</h3>
+              <h2 style="line-height: 0px">
+                <span id="otherUserNameC"></span>
+              </h2>
+            </div>
+          </div>
+        </div>
+
+        <br />
+
+        <!-- to show local and remote video -->
+        <div id="videos">
+          <div
+            style="
+              position: absolute;
+              top: 0;
+              right: 0;
+              padding-right: 20px;
+              padding-top: 20px;
+            "
+          >
+            <video
+              width="100px"
+              id="localVideo"
+              autoplay
+              muted
+              playsinline
+            ></video>
+          </div>
+          <div id="remoteVideoDiv">
+            <video
+              style="width: 500px"
+              id="remoteVideo"
+              autoplay
+              playsinline
+            ></video>
+          </div>
+        </div>
+        <div style="flex-grow: 1"></div>
+      </div>
+    </div>
+    <div style="flex-grow: 1"></div>
+    <div>
+      <div style="display: flex; flex-direction: column">
+        <a
+          href="https://www.bloggernepal.com/2021/05/setup-stun-and-turn-server-on-ubuntu.html"
+        >
+          Setup STUN and TURN server on Ubuntu
+        </a>
+      </div>
+    </div>
+
+    <script src="/assets/call.js"></script>
+    <script>
+      document.getElementById("call").style.display = "none";
+      document.getElementById("userInfo").style.display = "none";
+      document.getElementById("answer").style.display = "none";
+      document.getElementById("inCall").style.display = "none";
+      document.getElementById("calling").style.display = "none";
+      document.getElementById("videos").style.display = "none";
+    </script>
+    <script>
+      function login() {
+        let userName = document.getElementById("userNameInput").value;
+        myName = userName;
+        document.getElementById("userName").style.display = "none";
+        document.getElementById("call").style.display = "block";
+
+        document.getElementById("nameHere").innerHTML = userName;
+        document.getElementById("userInfo").style.display = "block";
+
+        connectSocket();
+      }
     </script>
   </body>
 </html>
